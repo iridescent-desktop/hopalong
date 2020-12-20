@@ -34,6 +34,7 @@
 
 struct hopalong_output;
 struct hopalong_server;
+struct hopalong_view;
 
 enum hopalong_view_frame_area {
 	HOPALONG_VIEW_FRAME_AREA_TOP,
@@ -47,9 +48,16 @@ enum hopalong_view_frame_area {
 	HOPALONG_VIEW_FRAME_AREA_COUNT,
 };
 
+struct hopalong_view_ops {
+	void (*minimize)(struct hopalong_view *view);
+	void (*maximize)(struct hopalong_view *view);
+	void (*close)(struct hopalong_view *view);
+};
+
 struct hopalong_view {
 	struct wl_list link;
 	struct hopalong_server *server;
+	const struct hopalong_view_ops *ops;
 	struct wlr_xdg_surface *xdg_surface;
 	struct wl_listener map;
 	struct wl_listener unmap;
@@ -77,5 +85,9 @@ struct hopalong_view {
 };
 
 extern bool hopalong_view_generate_textures(struct hopalong_output *output, struct hopalong_view *view);
+
+extern void hopalong_view_minimize(struct hopalong_view *view);
+extern void hopalong_view_maximize(struct hopalong_view *view);
+extern void hopalong_view_close(struct hopalong_view *view);
 
 #endif

@@ -218,6 +218,35 @@ hopalong_xdg_toplevel_request_resize(struct wl_listener *listener, void *data)
 }
 
 static void
+hopalong_xdg_toplevel_minimize(struct hopalong_view *view)
+{
+	wlr_log(WLR_INFO, "hopalong_xdg_toplevel_minimize: not implemented");
+}
+
+static void
+hopalong_xdg_toplevel_maximize(struct hopalong_view *view)
+{
+	wlr_log(WLR_INFO, "hopalong_xdg_toplevel_maximize: not implemented");
+}
+
+static void
+hopalong_xdg_toplevel_close(struct hopalong_view *view)
+{
+	struct wlr_xdg_surface *surface = view->xdg_surface;
+
+	if (surface->role != WLR_XDG_SURFACE_ROLE_TOPLEVEL || surface->toplevel == NULL)
+		return;
+
+	wlr_xdg_toplevel_send_close(surface);
+}
+
+static const struct hopalong_view_ops hopalong_xdg_view_ops = {
+	.minimize = hopalong_xdg_toplevel_minimize,
+	.maximize = hopalong_xdg_toplevel_maximize,
+	.close = hopalong_xdg_toplevel_close,
+};
+
+static void
 hopalong_xdg_new_surface(struct wl_listener *listener, void *data)
 {
 	struct hopalong_server *server = wl_container_of(listener, server, new_xdg_surface);
@@ -232,6 +261,7 @@ hopalong_xdg_new_surface(struct wl_listener *listener, void *data)
 	struct hopalong_view *view = calloc(1, sizeof(*view));
 	view->server = server;
 	view->xdg_surface = xdg_surface;
+	view->ops = &hopalong_xdg_view_ops;
 
 	view->x = view->y = 64;
 

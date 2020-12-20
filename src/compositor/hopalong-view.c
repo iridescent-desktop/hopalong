@@ -110,8 +110,38 @@ hopalong_view_generate_title_texture(struct hopalong_output *output, struct hopa
 bool
 hopalong_view_generate_textures(struct hopalong_output *output, struct hopalong_view *view)
 {
+	return_val_if_fail(output != NULL, false);
+	return_val_if_fail(view != NULL, false);
+
 	if (view->title_dirty && !hopalong_view_generate_title_texture(output, view))
 		return false;
 
 	return true;
+}
+
+void
+hopalong_view_minimize(struct hopalong_view *view)
+{
+	return_if_fail(view != NULL);
+	return_if_fail(view->ops != NULL);
+
+	view->ops->minimize(view);
+}
+
+void
+hopalong_view_maximize(struct hopalong_view *view)
+{
+	return_if_fail(view != NULL);
+	return_if_fail(view->ops != NULL);
+
+	view->ops->maximize(view);
+}
+
+void
+hopalong_view_close(struct hopalong_view *view)
+{
+	return_if_fail(view != NULL);
+	return_if_fail(view->ops != NULL);
+
+	view->ops->close(view);
 }
