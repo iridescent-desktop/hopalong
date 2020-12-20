@@ -155,6 +155,7 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 
 	/* title bar */
 	float title_bar_color[4] = {0.9, 0.9, 0.9, 1.0};
+	float title_bar_color_active[4] = {0.1, 0.1, 0.9, 1.0};
 
 	box = (struct wlr_box){
 		.x = base_box.x + (border_thickness * output->scale),
@@ -162,7 +163,7 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 		.width = base_box.width - (border_thickness * 2 * output->scale),
 		.height = (title_bar_height * output->scale),
 	};
-	render_rect(output, &box, title_bar_color);
+	render_rect(output, &box, xdg_surface->toplevel->current.activated ? title_bar_color_active : title_bar_color);
 
 	/* render the surface itself */
 	wlr_xdg_surface_for_each_surface(xdg_surface, render_surface, data);
