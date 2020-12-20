@@ -37,7 +37,7 @@ launch_session_leader(const char *socket, char *program)
 	snprintf(xdgruntimedir, sizeof xdgruntimedir, "XDG_RUNTIME_DIR=%s", getenv("XDG_RUNTIME_DIR"));
 	snprintf(homedir, sizeof homedir, "HOME=%s", getenv("HOME"));
 
-	char *shellargs[] = { "/bin/sh", "-c", program, NULL };
+	char *shellargs[] = { "/bin/sh", "-i", "-c", program, NULL };
 
 	wlr_log(WLR_INFO, "Launching session leader: %s", program);
 
