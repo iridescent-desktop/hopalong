@@ -89,7 +89,7 @@ render_surface(struct wlr_surface *surface, int sx, int sy, void *data)
 }
 
 static void
-render_texture(struct wlr_output *output, struct wlr_box *box, struct wlr_texture *texture)
+render_texture(struct wlr_output *output, struct wlr_box *box, struct wlr_texture *texture, float texture_scale)
 {
 	return_if_fail(texture != NULL);
 
@@ -97,8 +97,8 @@ render_texture(struct wlr_output *output, struct wlr_box *box, struct wlr_textur
 	struct wlr_box scalebox = {
 		.x = box->x,
 		.y = box->y,
-		.width = box->width,
-		.height = box->height
+		.width = box->width * texture_scale,
+		.height = box->height * texture_scale,
 	};
 	scale_box_coords(&scalebox, output->scale);
 
@@ -240,7 +240,7 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 			.height = view->title_box.height,
 		};
 
-		render_texture(output, &box, activated ? view->title : view->title_inactive);
+		render_texture(output, &box, activated ? view->title : view->title_inactive, 1.0f);
 	}
 
 	/* close button */
@@ -248,31 +248,31 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_CLOSE] = (struct wlr_box){
 		.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + (base_box.width - border_thickness - 8 - 16),
 		.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + 8,
-		.width = 16 * output->scale,
-		.height = 16 * output->scale,
+		.width = 16,
+		.height = 16,
 	};
 	render_texture(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_CLOSE],
-		activated ? rdata->textures->close : rdata->textures->close_inactive);
+		activated ? rdata->textures->close : rdata->textures->close_inactive, output->scale);
 
 	return_if_fail(rdata->textures->maximize != NULL);
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MAXIMIZE] = (struct wlr_box){
 		.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_CLOSE].x - 24,
 		.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_CLOSE].y,
-		.width = 16 * output->scale,
-		.height = 16 * output->scale,
+		.width = 16,
+		.height = 16,
 	};
 	render_texture(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MAXIMIZE],
-		activated ? rdata->textures->maximize : rdata->textures->maximize_inactive);
+		activated ? rdata->textures->maximize : rdata->textures->maximize_inactive, output->scale);
 
 	return_if_fail(rdata->textures->minimize != NULL);
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MINIMIZE] = (struct wlr_box){
 		.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MAXIMIZE].x - 24,
 		.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MAXIMIZE].y,
-		.width = 16 * output->scale,
-		.height = 16 * output->scale,
+		.width = 16,
+		.height = 16,
 	};
 	render_texture(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MINIMIZE],
-		activated ? rdata->textures->minimize : rdata->textures->minimize_inactive);
+		activated ? rdata->textures->minimize : rdata->textures->minimize_inactive, output->scale);
 
 	/* render the surface itself */
 	wlr_xdg_surface_for_each_surface(xdg_surface, render_surface, data);
