@@ -28,6 +28,7 @@
 #include <wlr/types/wlr_pointer.h>
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_xcursor_manager.h>
+#include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/log.h>
 #include <xkbcommon/xkbcommon.h>
@@ -73,6 +74,9 @@ struct hopalong_server {
 	struct wlr_output_layout *output_layout;
 	struct wl_list outputs;
 	struct wl_listener new_output;
+
+	struct wlr_xdg_decoration_manager_v1 *xdg_deco_mgr;
+	struct wl_listener new_toplevel_decoration;
 };
 
 extern struct hopalong_server *hopalong_server_new(void);
