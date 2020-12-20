@@ -16,13 +16,13 @@
 
 #define return_if_fail(cond)		\
 	if (!(cond)) {			\
-		wlr_log(WLR_ERROR, "%s:%u: " #cond ": Assertion failed.\n", __FILE__, __LINE__); \
+		wlr_log(WLR_ERROR, #cond ": Assertion failed."); \
 		return;			\
 	}
 
 #define return_val_if_fail(cond, val)	\
 	if (!(cond)) {			\
-		wlr_log(WLR_ERROR, "%s:%u: " #cond ": Assertion failed.\n", __FILE__, __LINE__); \
+		wlr_log(WLR_ERROR, #cond ": Assertion failed."); \
 		return (val);		\
 	}
 
