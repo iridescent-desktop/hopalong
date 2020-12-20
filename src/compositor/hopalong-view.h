@@ -84,6 +84,18 @@ struct hopalong_view {
 	bool using_csd;
 };
 
+struct hopalong_generated_textures {
+	struct wlr_texture *minimize;
+	struct wlr_texture *minimize_inactive;
+
+	struct wlr_texture *maximize;
+	struct wlr_texture *maximize_inactive;
+
+	struct wlr_texture *close;
+	struct wlr_texture *close_inactive;
+};
+
+extern struct hopalong_generated_textures *hopalong_generate_builtin_textures_for_output(struct hopalong_output *output);
 extern bool hopalong_view_generate_textures(struct hopalong_output *output, struct hopalong_view *view);
 
 extern void hopalong_view_minimize(struct hopalong_view *view);

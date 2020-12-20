@@ -32,6 +32,7 @@
 #include <wlr/util/log.h>
 #include <xkbcommon/xkbcommon.h>
 
+struct hopalong_generated_textures;
 struct hopalong_server;
 
 struct hopalong_output {
@@ -39,6 +40,8 @@ struct hopalong_output {
 	struct hopalong_server *server;
 	struct wlr_output *wlr_output;
 	struct wl_listener frame;
+
+	struct hopalong_generated_textures *generated_textures;
 };
 
 extern struct hopalong_output *hopalong_output_new_from_wlr_output(struct hopalong_server *server, struct wlr_output *output);

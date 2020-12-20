@@ -19,6 +19,135 @@
 #include "hopalong-output.h"
 #include "hopalong-pango-util.h"
 
+static struct wlr_texture *
+generate_minimize_texture(struct hopalong_output *output, float color[4])
+{
+	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 32, 32);
+	return_val_if_fail(surface != NULL, false);
+
+	cairo_t *cr = cairo_create(surface);
+	return_val_if_fail(cr != NULL, false);
+
+	cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
+
+	cairo_set_source_rgba(cr, color[0], color[1], color[2], color[3]);
+	cairo_set_line_width(cr, 3.0);
+
+	cairo_move_to(cr, 8, 16);
+	cairo_line_to(cr, 16, 24);
+	cairo_line_to(cr, 24, 16);
+
+	cairo_stroke(cr);
+
+	cairo_surface_flush(surface);
+
+	unsigned char *data = cairo_image_surface_get_data(surface);
+	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->wlr_output->backend);
+	struct wlr_texture *texture = wlr_texture_from_pixels(renderer,
+		WL_SHM_FORMAT_ARGB8888,
+		cairo_image_surface_get_stride(surface),
+		32, 32, data);
+
+	cairo_destroy(cr);
+	cairo_surface_destroy(surface);
+
+	return texture;
+}
+
+static struct wlr_texture *
+generate_maximize_texture(struct hopalong_output *output, float color[4])
+{
+	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 32, 32);
+	return_val_if_fail(surface != NULL, false);
+
+	cairo_t *cr = cairo_create(surface);
+	return_val_if_fail(cr != NULL, false);
+
+	cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
+
+	cairo_set_source_rgba(cr, color[0], color[1], color[2], color[3]);
+	cairo_set_line_width(cr, 3.0);
+
+	cairo_move_to(cr, 8, 16);
+	cairo_line_to(cr, 16, 8);
+	cairo_line_to(cr, 24, 16);
+	cairo_line_to(cr, 16, 24);
+	cairo_line_to(cr, 8, 16);
+
+	cairo_stroke(cr);
+
+	cairo_surface_flush(surface);
+
+	unsigned char *data = cairo_image_surface_get_data(surface);
+	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->wlr_output->backend);
+	struct wlr_texture *texture = wlr_texture_from_pixels(renderer,
+		WL_SHM_FORMAT_ARGB8888,
+		cairo_image_surface_get_stride(surface),
+		32, 32, data);
+
+	cairo_destroy(cr);
+	cairo_surface_destroy(surface);
+
+	return texture;
+}
+
+static struct wlr_texture *
+generate_close_texture(struct hopalong_output *output, float color[4])
+{
+	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 32, 32);
+	return_val_if_fail(surface != NULL, false);
+
+	cairo_t *cr = cairo_create(surface);
+	return_val_if_fail(cr != NULL, false);
+
+	cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
+
+	cairo_set_source_rgba(cr, color[0], color[1], color[2], color[3]);
+	cairo_set_line_width(cr, 3.0);
+
+	cairo_move_to(cr, 8, 24);
+	cairo_line_to(cr, 24, 8);
+
+	cairo_move_to(cr, 24, 24);
+	cairo_line_to(cr, 8, 8);
+
+	cairo_stroke(cr);
+
+	cairo_surface_flush(surface);
+
+	unsigned char *data = cairo_image_surface_get_data(surface);
+	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->wlr_output->backend);
+	struct wlr_texture *texture = wlr_texture_from_pixels(renderer,
+		WL_SHM_FORMAT_ARGB8888,
+		cairo_image_surface_get_stride(surface),
+		32, 32, data);
+
+	cairo_destroy(cr);
+	cairo_surface_destroy(surface);
+
+	return texture;
+}
+
+struct hopalong_generated_textures *
+hopalong_generate_builtin_textures_for_output(struct hopalong_output *output)
+{
+	float active[4] = {1.0, 1.0, 1.0, 1.0};
+	float inactive[4] = {0.2, 0.2, 0.2, 1.0};
+
+	struct hopalong_generated_textures *gentex = calloc(1, sizeof(*gentex));
+
+	gentex->minimize = generate_minimize_texture(output, active);
+	gentex->minimize_inactive = generate_minimize_texture(output, inactive);
+
+	gentex->maximize = generate_maximize_texture(output, active);
+	gentex->maximize_inactive = generate_maximize_texture(output, inactive);
+
+	gentex->close = generate_close_texture(output, active);
+	gentex->close_inactive = generate_close_texture(output, inactive);
+
+	return gentex;
+}
+
 static bool
 hopalong_view_generate_title_texture(struct hopalong_output *output, struct hopalong_view *view)
 {
