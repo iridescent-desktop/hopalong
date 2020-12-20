@@ -13,6 +13,9 @@ Hopalong is a simple Wayland compositor with a featureset comparable to XFWM.
 
 * Correct functionality regardless of system byte ordering (endianness).
 
+* Built on wlroots: a rock-solid Wayland compositor framework powering other
+  compositors such as Sway.
+
 ## Screenshots
 
 TODO: First, screenshot support must be implemented.
