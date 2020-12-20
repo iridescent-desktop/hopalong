@@ -19,6 +19,19 @@
 static bool
 handle_keybinding(struct hopalong_server *server, xkb_keysym_t sym)
 {
+	if (sym >= XKB_KEY_XF86Switch_VT_1 && sym <= XKB_KEY_XF86Switch_VT_12)
+	{
+		struct wlr_session *session = wlr_backend_get_session(server->backend);
+
+		if (session != NULL)
+		{
+			unsigned vt = sym - XKB_KEY_XF86Switch_VT_1 + 1;
+			wlr_session_change_vt(session, vt);
+		}
+
+		return true;
+	}
+
 	switch (sym)
 	{
 	case XKB_KEY_Escape:
