@@ -26,6 +26,15 @@ struct render_data {
 };
 
 static void
+scale_box(struct wlr_box *box, float scale)
+{
+	box->x *= scale;
+	box->y *= scale;
+	box->width *= scale;
+	box->height *= scale;
+}
+
+static void
 render_surface(struct wlr_surface *surface, int sx, int sy, void *data)
 {
 	return_if_fail(surface != NULL);
@@ -52,11 +61,12 @@ render_surface(struct wlr_surface *surface, int sx, int sy, void *data)
 
 	/* set up our box */
 	struct wlr_box box = {
-		.x = ox * output->scale,
-		.y = oy * output->scale,
-		.width = surface->current.width * output->scale,
-		.height = surface->current.height * output->scale
+		.x = ox,
+		.y = oy,
+		.width = surface->current.width,
+		.height = surface->current.height,
 	};
+	scale_box(&box, output->scale);
 
 	/* convert box to matrix */
 	float matrix[9];
@@ -195,8 +205,8 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	if (view->title != NULL)
 	{
 		box = (struct wlr_box){
-			.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + 8,
-			.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + 8,
+			.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + (8 * output->scale),
+			.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + (8 * output->scale),
 			.width = view->title_box.width,
 			.height = view->title_box.height,
 		};
@@ -241,12 +251,8 @@ hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 	if (!wlr_output_attach_render(output->wlr_output, NULL))
 		return;
 
-	/* determine our viewport resolution. */
-	int width, height;
-	wlr_output_effective_resolution(output->wlr_output, &width, &height);
-
 	/* start rendering */
-	wlr_renderer_begin(renderer, width, height);
+	wlr_renderer_begin(renderer, output->wlr_output->width, output->wlr_output->height);
 
 	/* clear to something slightly off-gray in order to show the renderer is alive */
 	float color[4] = {0.3, 0.3, 0.5, 1.0};
