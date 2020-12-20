@@ -34,6 +34,18 @@
 
 struct hopalong_server;
 
+enum hopalong_view_frame_area {
+	HOPALONG_VIEW_FRAME_AREA_TOP,
+	HOPALONG_VIEW_FRAME_AREA_BOTTOM,
+	HOPALONG_VIEW_FRAME_AREA_LEFT,
+	HOPALONG_VIEW_FRAME_AREA_RIGHT,
+	HOPALONG_VIEW_FRAME_AREA_TITLEBAR,
+	HOPALONG_VIEW_FRAME_AREA_MINIMIZE,
+	HOPALONG_VIEW_FRAME_AREA_MAXIMIZE,
+	HOPALONG_VIEW_FRAME_AREA_CLOSE,
+	HOPALONG_VIEW_FRAME_AREA_COUNT,
+};
+
 struct hopalong_view {
 	struct wl_list link;
 	struct hopalong_server *server;
@@ -45,6 +57,8 @@ struct hopalong_view {
 	struct wl_listener request_resize;
 	bool mapped;
 	int x, y;
+
+	struct wlr_box frame_areas[HOPALONG_VIEW_FRAME_AREA_COUNT];
 };
 
 #endif

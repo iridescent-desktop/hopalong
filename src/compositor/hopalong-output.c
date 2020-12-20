@@ -118,52 +118,53 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	int title_bar_offset = (title_bar_height + border_thickness) * output->scale;
 
 	/* render borders, starting with top */
-	box = (struct wlr_box){
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP] = (struct wlr_box){
 		.x = base_box.x,
 		.y = base_box.y - title_bar_offset,
 		.width = base_box.width,
 		.height = title_bar_offset,
 	};
-	render_rect(output, &box, border_color);
+	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP], border_color);
 
 	/* bottom border */
-	box = (struct wlr_box){
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM] = (struct wlr_box){
 		.x = base_box.x,
 		.y = base_box.y + base_box.height - border_thickness,
 		.width = base_box.width,
 		.height = border_thickness * output->scale,
 	};
-	render_rect(output, &box, border_color);
+	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM], border_color);
 
 	/* left border */
-	box = (struct wlr_box){
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT] = (struct wlr_box){
 		.x = base_box.x,
 		.y = base_box.y,
 		.width = border_thickness * output->scale,
 		.height = base_box.height,
 	};
-	render_rect(output, &box, border_color);
+	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT], border_color);
 
 	/* right border */
-	box = (struct wlr_box){
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT] = (struct wlr_box){
 		.x = base_box.x + base_box.width - border_thickness,
 		.y = base_box.y,
 		.width = border_thickness * output->scale,
 		.height = base_box.height,
 	};
-	render_rect(output, &box, border_color);
+	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT], border_color);
 
 	/* title bar */
 	float title_bar_color[4] = {0.9, 0.9, 0.9, 1.0};
 	float title_bar_color_active[4] = {0.1, 0.1, 0.9, 1.0};
 
-	box = (struct wlr_box){
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR] = (struct wlr_box){
 		.x = base_box.x + (border_thickness * output->scale),
 		.y = base_box.y - (title_bar_height * output->scale),
 		.width = base_box.width - (border_thickness * 2 * output->scale),
 		.height = (title_bar_height * output->scale),
 	};
-	render_rect(output, &box, xdg_surface->toplevel->current.activated ? title_bar_color_active : title_bar_color);
+	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR],
+		xdg_surface->toplevel->current.activated ? title_bar_color_active : title_bar_color);
 
 	/* render the surface itself */
 	wlr_xdg_surface_for_each_surface(xdg_surface, render_surface, data);
