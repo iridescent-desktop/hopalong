@@ -241,6 +241,8 @@ hopalong_xdg_new_surface(struct wl_listener *listener, void *data)
 	view->server = server;
 	view->xdg_surface = xdg_surface;
 
+	view->x = view->y = 64;
+
 	/* hook up our xdg_surface events */
 	view->map.notify = hopalong_xdg_surface_map;
 	wl_signal_add(&xdg_surface->events.map, &view->map);

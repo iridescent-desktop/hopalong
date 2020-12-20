@@ -68,6 +68,107 @@ render_surface(struct wlr_surface *surface, int sx, int sy, void *data)
 }
 
 static void
+render_rect(struct wlr_output *output, struct wlr_box *box, float color[4])
+{
+	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->backend);
+	wlr_render_rect(renderer, box, color, output->transform_matrix);
+}
+
+static void
+render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
+{
+	return_if_fail(xdg_surface != NULL);
+
+	struct render_data *rdata = data;
+	return_if_fail(rdata != NULL);
+
+	struct hopalong_view *view = rdata->view;
+	return_if_fail(view != NULL);
+
+	struct wlr_output *output = rdata->output;
+	return_if_fail(output != NULL);
+
+	/* translate to output-local coordinates */
+	double ox = 0, oy = 0;
+	wlr_output_layout_output_coords(view->server->output_layout, output, &ox, &oy);
+	ox += view->x + 0;
+	oy += view->y + 0;
+
+	int border_thickness = 1;
+	int title_bar_height = 32;
+
+	/* scratch geometry */
+	struct wlr_box box;
+	wlr_xdg_surface_get_geometry(xdg_surface, &box);
+
+	box.x = (ox - border_thickness) * output->scale;
+	box.y = (oy - border_thickness) * output->scale;
+	box.width = (box.width + border_thickness * 2) * output->scale;
+	box.height = (box.height + border_thickness * 2) * output->scale;
+
+	/* copy scratch to base_box */
+	struct wlr_box base_box = {
+		.x = box.x,
+		.y = box.y,
+		.width = box.width,
+		.height = box.height,
+	};
+
+	float border_color[4] = {0.5, 0.5, 0.5, 1.0};
+	int title_bar_offset = (title_bar_height + border_thickness) * output->scale;
+
+	/* render borders, starting with top */
+	box = (struct wlr_box){
+		.x = base_box.x,
+		.y = base_box.y - title_bar_offset,
+		.width = base_box.width,
+		.height = title_bar_offset,
+	};
+	render_rect(output, &box, border_color);
+
+	/* bottom border */
+	box = (struct wlr_box){
+		.x = base_box.x,
+		.y = base_box.y + base_box.height - border_thickness,
+		.width = base_box.width,
+		.height = border_thickness * output->scale,
+	};
+	render_rect(output, &box, border_color);
+
+	/* left border */
+	box = (struct wlr_box){
+		.x = base_box.x,
+		.y = base_box.y,
+		.width = border_thickness * output->scale,
+		.height = base_box.height,
+	};
+	render_rect(output, &box, border_color);
+
+	/* right border */
+	box = (struct wlr_box){
+		.x = base_box.x + base_box.width - border_thickness,
+		.y = base_box.y,
+		.width = border_thickness * output->scale,
+		.height = base_box.height,
+	};
+	render_rect(output, &box, border_color);
+
+	/* title bar */
+	float title_bar_color[4] = {0.9, 0.9, 0.9, 1.0};
+
+	box = (struct wlr_box){
+		.x = base_box.x + (border_thickness * output->scale),
+		.y = base_box.y - (title_bar_height * output->scale),
+		.width = base_box.width - (border_thickness * 2 * output->scale),
+		.height = (title_bar_height * output->scale),
+	};
+	render_rect(output, &box, title_bar_color);
+
+	/* render the surface itself */
+	wlr_xdg_surface_for_each_surface(xdg_surface, render_surface, data);
+}
+
+static void
 hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 {
 	struct hopalong_output *output = wl_container_of(listener, output, frame);
@@ -108,7 +209,7 @@ hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 			.when = &now,
 		};
 
-		wlr_xdg_surface_for_each_surface(view->xdg_surface, render_surface, &rdata);
+		render_container(view->xdg_surface, &rdata);
 	}
 
 	/* renderer our cursor if we need to */
