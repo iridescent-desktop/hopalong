@@ -15,11 +15,24 @@
 #include "hopalong-server.h"
 #include "hopalong-xdg.h"
 
+static const char * cursor_images[HOPALONG_VIEW_FRAME_AREA_COUNT] = {
+	[HOPALONG_VIEW_FRAME_AREA_TOP]		= "top_side",
+	[HOPALONG_VIEW_FRAME_AREA_BOTTOM]	= "bottom_side",
+	[HOPALONG_VIEW_FRAME_AREA_LEFT]		= "left_side",
+	[HOPALONG_VIEW_FRAME_AREA_RIGHT]	= "right_side",
+	[HOPALONG_VIEW_FRAME_AREA_TITLEBAR]	= "left_ptr",
+	[HOPALONG_VIEW_FRAME_AREA_MINIMIZE]	= "left_ptr",
+	[HOPALONG_VIEW_FRAME_AREA_MAXIMIZE]	= "left_ptr",
+	[HOPALONG_VIEW_FRAME_AREA_CLOSE]	= "left_ptr",
+};
+
 static void
 process_cursor_move(struct hopalong_server *server, uint32_t time)
 {
 	server->grabbed_view->x = server->cursor->x - server->grab_x;
 	server->grabbed_view->y = server->cursor->y - server->grab_y;
+
+	wlr_xcursor_manager_set_cursor_image(server->cursor_mgr, "grabbing", server->cursor);
 }
 
 static void
@@ -95,8 +108,10 @@ process_cursor_motion(struct hopalong_server *server, uint32_t time)
 	struct hopalong_view *view = hopalong_xdg_desktop_view_at(server,
 		server->cursor->x, server->cursor->y, &surface, &sx, &sy);
 
-	if (view == NULL)
+	if (view == NULL || view->frame_area == -1 || surface != NULL)
 		wlr_xcursor_manager_set_cursor_image(server->cursor_mgr, "left_ptr", server->cursor);
+	else if (view->frame_area != -1 && view->frame_area < HOPALONG_VIEW_FRAME_AREA_COUNT)
+		wlr_xcursor_manager_set_cursor_image(server->cursor_mgr, cursor_images[view->frame_area], server->cursor);
 
 	if (surface != NULL)
 	{
