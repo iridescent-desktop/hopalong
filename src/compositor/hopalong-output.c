@@ -158,8 +158,8 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 
 	box.x = (ox - border_thickness);
 	box.y = (oy - border_thickness);
-	box.width = (box.width + border_thickness * 2);
-	box.height = (box.height + border_thickness * 2);
+	box.width = (box.width + (border_thickness * 2));
+	box.height = (box.height + (border_thickness * 2));
 
 	/* copy scratch to base_box */
 	struct wlr_box base_box = {
@@ -217,8 +217,8 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR] = (struct wlr_box){
 		.x = base_box.x + border_thickness,
 		.y = base_box.y - title_bar_height,
-		.width = base_box.width - border_thickness,
-		.height = title_bar_height,
+		.width = base_box.width - (border_thickness * 2),
+		.height = title_bar_height + 1,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR],
 		activated ? title_bar_color_active : title_bar_color);
