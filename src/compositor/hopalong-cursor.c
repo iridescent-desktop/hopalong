@@ -159,7 +159,13 @@ cursor_button(struct wl_listener *listener, void *data)
 	struct hopalong_view *view = hopalong_xdg_desktop_view_at(server, server->cursor->x, server->cursor->y, &surface, &sx, &sy);
 
 	if (event->state == WLR_BUTTON_RELEASED)
+	{
 		server->cursor_mode = HOPALONG_CURSOR_PASSTHROUGH;
+
+		wlr_xcursor_manager_set_cursor_image(server->cursor_mgr, "left_ptr", server->cursor);
+
+		server->resize_edges = WLR_EDGE_NONE;
+	}
 	else if (view != NULL)
 	{
 		hopalong_xdg_focus_view(view, surface);
