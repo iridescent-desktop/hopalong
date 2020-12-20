@@ -74,6 +74,10 @@ hopalong_decoration_setup(struct hopalong_server *server)
 	server->xdg_deco_mgr = wlr_xdg_decoration_manager_v1_create(server->display);
 	server->new_toplevel_decoration.notify = hopalong_xdg_toplevel_new_decoration;
 	wl_signal_add(&server->xdg_deco_mgr->events.new_toplevel_decoration, &server->new_toplevel_decoration);
+
+	server->wlr_deco_mgr = wlr_server_decoration_manager_create(server->display);
+
+	wlr_server_decoration_manager_set_default_mode(server->wlr_deco_mgr, WLR_SERVER_DECORATION_MANAGER_MODE_SERVER);
 }
 
 void
