@@ -7,6 +7,8 @@ hopalong_sources = [
   'hopalong-xdg.c',
   'hopalong-cursor.c',
   'hopalong-seat.c',
+  'hopalong-view.c',
+  'hopalong-pango-util.c',
   'hopalong-main.c',
 ]
 
@@ -19,6 +21,7 @@ hopalong_exe = executable('hopalong',
     cairo,
     pangocairo,
     pixman,
+    glesv2,
     wlroots,
     xkbcommon
   ]

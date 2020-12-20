@@ -15,6 +15,9 @@
 #include "hopalong-server.h"
 #include "hopalong-output.h"
 
+#include <wlr/render/gles2.h>
+#include <GLES2/gl2.h>
+
 struct render_data {
 	struct wlr_output *output;
 	struct hopalong_view *view;
@@ -65,6 +68,26 @@ render_surface(struct wlr_surface *surface, int sx, int sy, void *data)
 
 	/* tell the client rendering is done */
 	wlr_surface_send_frame_done(surface, rdata->when);
+}
+
+static void
+render_texture(struct wlr_output *output, struct wlr_box *box, struct wlr_texture *texture)
+{
+	return_if_fail(texture != NULL);
+
+	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->backend);
+
+	struct wlr_gles2_texture_attribs attribs;
+	wlr_gles2_texture_get_attribs(texture, &attribs);
+	glBindTexture(attribs.target, attribs.tex);
+	glTexParameteri(attribs.target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	float matrix[9];
+	wlr_matrix_project_box(matrix, box,
+		WL_OUTPUT_TRANSFORM_NORMAL,
+		0.0, output->transform_matrix);
+
+	wlr_render_texture_with_matrix(renderer, texture, matrix, 1.0);
 }
 
 static void
@@ -154,6 +177,8 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT], border_color);
 
 	/* title bar */
+	bool activated = xdg_surface->toplevel->current.activated;
+
 	float title_bar_color[4] = {0.9, 0.9, 0.9, 1.0};
 	float title_bar_color_active[4] = {0.1, 0.1, 0.9, 1.0};
 
@@ -164,10 +189,37 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 		.height = (title_bar_height * output->scale),
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR],
-		xdg_surface->toplevel->current.activated ? title_bar_color_active : title_bar_color);
+		activated ? title_bar_color_active : title_bar_color);
+
+	/* title bar text */
+	if (view->title != NULL)
+	{
+		box = (struct wlr_box){
+			.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + 8,
+			.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + 8,
+			.width = view->title_box.width,
+			.height = view->title_box.height,
+		};
+
+		render_texture(output, &box, activated ? view->title : view->title_inactive);
+	}
 
 	/* render the surface itself */
 	wlr_xdg_surface_for_each_surface(xdg_surface, render_surface, data);
+}
+
+static void
+regenerate_textures(struct hopalong_output *output)
+{
+	struct hopalong_view *view;
+
+	wl_list_for_each_reverse(view, &output->server->views, link)
+	{
+		if (!view->mapped)
+			continue;
+
+		hopalong_view_generate_textures(output, view);
+	}
 }
 
 static void
@@ -178,6 +230,9 @@ hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 
 	struct wlr_renderer *renderer = output->server->renderer;
 	return_if_fail(renderer != NULL);
+
+	/* regenerate textures */
+	regenerate_textures(output);
 
 	/* get our render TS */
 	struct timespec now;

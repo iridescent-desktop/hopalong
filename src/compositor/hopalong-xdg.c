@@ -139,7 +139,21 @@ hopalong_xdg_surface_destroy(struct wl_listener *listener, void *data)
 
 	struct hopalong_view *view = wl_container_of(listener, view, destroy);
 	wl_list_remove(&view->link);
+
+	if (view->title)
+	{
+		wlr_texture_destroy(view->title);
+		wlr_texture_destroy(view->title_inactive);
+	}
+
 	free(view);
+}
+
+static void
+hopalong_xdg_toplevel_set_title(struct wl_listener *listener, void *data)
+{
+	struct hopalong_view *view = wl_container_of(listener, view, set_title);
+	view->title_dirty = true;
 }
 
 static void
@@ -290,6 +304,10 @@ hopalong_xdg_new_surface(struct wl_listener *listener, void *data)
 
 	view->request_resize.notify = hopalong_xdg_toplevel_request_resize;
 	wl_signal_add(&xdg_toplevel->events.request_resize, &view->request_resize);
+
+	view->title_dirty = true;
+	view->set_title.notify = hopalong_xdg_toplevel_set_title;
+	wl_signal_add(&xdg_toplevel->events.set_title, &view->set_title);
 
 	/* add to the list of views */
 	wl_list_insert(&server->views, &view->link);

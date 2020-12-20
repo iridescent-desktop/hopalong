@@ -32,6 +32,7 @@
 #include <wlr/util/log.h>
 #include <xkbcommon/xkbcommon.h>
 
+struct hopalong_output;
 struct hopalong_server;
 
 enum hopalong_view_frame_area {
@@ -55,6 +56,7 @@ struct hopalong_view {
 	struct wl_listener destroy;
 	struct wl_listener request_move;
 	struct wl_listener request_resize;
+	struct wl_listener set_title;
 	bool mapped;
 	int x, y;
 
@@ -63,6 +65,14 @@ struct hopalong_view {
 	/* the area of the frame the pointer is hovering over if any */
 	int frame_area;
 	int frame_area_edges;
+
+	/* textures owned by this view */
+	struct wlr_texture *title;
+	struct wlr_texture *title_inactive;
+	struct wlr_box title_box;
+	bool title_dirty;
 };
+
+extern bool hopalong_view_generate_textures(struct hopalong_output *output, struct hopalong_view *view);
 
 #endif

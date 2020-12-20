@@ -15,6 +15,7 @@ pixman         = dependency('pixman-1')
 cairo          = dependency('cairo')
 pango          = dependency('pango')
 pangocairo     = dependency('pangocairo')
+glesv2	       = dependency('glesv2')
 wlroots        = dependency('wlroots')
 xkbcommon      = dependency('xkbcommon')
 
