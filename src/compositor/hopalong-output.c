@@ -143,6 +143,12 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	struct wlr_output *output = rdata->output;
 	return_if_fail(output != NULL);
 
+	if (view->using_csd)
+	{
+		wlr_xdg_surface_for_each_surface(xdg_surface, render_surface, data);
+		return;
+	}
+
 	/* translate to output-local coordinates */
 	double ox = 0, oy = 0;
 	wlr_output_layout_output_coords(view->server->output_layout, output, &ox, &oy);

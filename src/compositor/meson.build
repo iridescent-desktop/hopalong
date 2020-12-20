@@ -9,6 +9,7 @@ hopalong_sources = [
   'hopalong-seat.c',
   'hopalong-view.c',
   'hopalong-pango-util.c',
+  'hopalong-decoration.c',
   'hopalong-main.c',
 ]
 

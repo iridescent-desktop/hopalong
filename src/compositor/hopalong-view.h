@@ -71,6 +71,9 @@ struct hopalong_view {
 	struct wlr_texture *title_inactive;
 	struct wlr_box title_box;
 	bool title_dirty;
+
+	/* client-side decorations */
+	bool using_csd;
 };
 
 extern bool hopalong_view_generate_textures(struct hopalong_output *output, struct hopalong_view *view);

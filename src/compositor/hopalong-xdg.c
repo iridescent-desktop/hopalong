@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "hopalong-xdg.h"
 #include "hopalong-server.h"
+#include "hopalong-decoration.h"
 
 static const int resize_edges[] = {
 	WLR_EDGE_TOP,
@@ -216,57 +217,6 @@ hopalong_xdg_toplevel_request_resize(struct wl_listener *listener, void *data)
 	hopalong_xdg_begin_drag(view, HOPALONG_CURSOR_RESIZE, event->edges);
 }
 
-struct hopalong_deco_state {
-	struct hopalong_server *server;
-	struct wlr_xdg_toplevel_decoration_v1 *wlr_deco;
-
-	struct wl_listener request_mode;
-	struct wl_listener destroy;
-};
-
-static void
-hopalong_xdg_decoration_request_mode(struct wl_listener *listener, void *data)
-{
-	struct wlr_xdg_toplevel_decoration_v1 *wlr_deco = data;
-	wlr_xdg_toplevel_decoration_v1_set_mode(wlr_deco,
-			WLR_XDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
-}
-
-static void
-hopalong_xdg_decoration_destroy(struct wl_listener *listener, void *data)
-{
-	struct hopalong_deco_state *d = wl_container_of(listener, d, destroy);
-
-	wl_list_remove(&d->destroy.link);
-	wl_list_remove(&d->request_mode.link);
-	free(d);
-}
-
-static void
-hopalong_xdg_toplevel_new_decoration(struct wl_listener *listener, void *data)
-{
-	return_if_fail(listener != NULL);
-	return_if_fail(data != NULL);
-
-	struct hopalong_server *server = wl_container_of(listener, server, new_toplevel_decoration);
-	return_if_fail(server != NULL);
-
-	struct wlr_xdg_toplevel_decoration_v1 *wlr_deco = data;
-
-	struct hopalong_deco_state *deco_state = calloc(1, sizeof(*deco_state));
-
-	deco_state->server = server;
-	deco_state->wlr_deco = wlr_deco;
-
-	deco_state->request_mode.notify = hopalong_xdg_decoration_request_mode;
-	wl_signal_add(&wlr_deco->events.request_mode, &deco_state->request_mode);
-
-	deco_state->destroy.notify = hopalong_xdg_decoration_destroy;
-	wl_signal_add(&wlr_deco->events.destroy, &deco_state->destroy);
-
-	hopalong_xdg_decoration_request_mode(&deco_state->request_mode, wlr_deco);
-}
-
 static void
 hopalong_xdg_new_surface(struct wl_listener *listener, void *data)
 {
@@ -329,9 +279,7 @@ hopalong_xdg_shell_setup(struct hopalong_server *server)
 	server->new_xdg_surface.notify = hopalong_xdg_new_surface;
 	wl_signal_add(&server->xdg_shell->events.new_surface, &server->new_xdg_surface);
 
-	server->xdg_deco_mgr = wlr_xdg_decoration_manager_v1_create(server->display);
-	server->new_toplevel_decoration.notify = hopalong_xdg_toplevel_new_decoration;
-	wl_signal_add(&server->xdg_deco_mgr->events.new_toplevel_decoration, &server->new_toplevel_decoration);
+	hopalong_decoration_setup(server);
 }
 
 /*
@@ -341,4 +289,6 @@ void
 hopalong_xdg_shell_teardown(struct hopalong_server *server)
 {
 	return_if_fail(server != NULL);
+
+	hopalong_decoration_teardown(server);
 }
