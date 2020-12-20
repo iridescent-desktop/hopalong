@@ -184,6 +184,24 @@ cursor_button(struct wl_listener *listener, void *data)
 			return;
 		}
 
+		if (view->frame_area == HOPALONG_VIEW_FRAME_AREA_CLOSE)
+		{
+			hopalong_view_close(view);
+			return;
+		}
+
+		if (view->frame_area == HOPALONG_VIEW_FRAME_AREA_MAXIMIZE)
+		{
+			hopalong_view_maximize(view);
+			return;
+		}
+
+		if (view->frame_area == HOPALONG_VIEW_FRAME_AREA_MINIMIZE)
+		{
+			hopalong_view_minimize(view);
+			return;
+		}
+
 		if (view->frame_area_edges != WLR_EDGE_NONE)
 		{
 			server->cursor_mode = HOPALONG_CURSOR_RESIZE;
