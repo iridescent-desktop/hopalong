@@ -38,7 +38,8 @@ render_surface(struct wlr_surface *surface, int sx, int sy, void *data)
 
 	/* get a GPU texture */
 	struct wlr_texture *texture = wlr_surface_get_texture(surface);
-	return_if_fail(texture != NULL);
+	if (texture == NULL)
+		return;
 
 	/* translate to output-local coordinates */
 	double ox = 0, oy = 0;
