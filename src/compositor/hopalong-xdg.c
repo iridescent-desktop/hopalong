@@ -59,12 +59,10 @@ hopalong_xdg_view_at(struct hopalong_view *view,
 
 			if (i < HOPALONG_VIEW_FRAME_AREA_TITLEBAR)
 				view->frame_area_edges |= resize_edges[i];
-
-			return true;
 		}
 	}
 
-	return false;
+	return view->frame_area != -1;
 }
 
 struct hopalong_view *
