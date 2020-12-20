@@ -1,0 +1,25 @@
+compositor_inc = include_directories('.')
+
+
+hopalong_sources = [
+  'hopalong-server.c',
+  'hopalong-output.c',
+  'hopalong-xdg.c',
+  'hopalong-cursor.c',
+  'hopalong-seat.c',
+  'hopalong-main.c',
+]
+
+
+hopalong_exe = executable('hopalong',
+  hopalong_sources,
+  dependencies: [
+    server_protos,
+    wayland_server,
+    cairo,
+    pangocairo,
+    pixman,
+    wlroots,
+    xkbcommon
+  ]
+)
