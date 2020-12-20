@@ -59,6 +59,10 @@ struct hopalong_view {
 	int x, y;
 
 	struct wlr_box frame_areas[HOPALONG_VIEW_FRAME_AREA_COUNT];
+
+	/* the area of the frame the pointer is hovering over if any */
+	int frame_area;
+	int frame_area_edges;
 };
 
 #endif

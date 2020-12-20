@@ -15,6 +15,13 @@
 #include "hopalong-xdg.h"
 #include "hopalong-server.h"
 
+static const int resize_edges[] = {
+	WLR_EDGE_TOP,
+	WLR_EDGE_BOTTOM,
+	WLR_EDGE_LEFT,
+	WLR_EDGE_RIGHT,
+};
+
 bool
 hopalong_xdg_view_at(struct hopalong_view *view,
 	double lx, double ly, struct wlr_surface **surface, double *sx, double *sy)
@@ -32,6 +39,29 @@ hopalong_xdg_view_at(struct hopalong_view *view,
 		*sy = _sy;
 		*surface = _surface;
 		return true;
+	}
+
+	/* check for frame areas */
+	view->frame_area = -1;
+	view->frame_area_edges = WLR_EDGE_NONE;
+
+	for (size_t i = 0; i < HOPALONG_VIEW_FRAME_AREA_COUNT; i++)
+	{
+		struct wlr_box *box = &view->frame_areas[i];
+
+		if (!box->width && !box->height)
+			continue;
+
+		if (lx >= box->x && lx <= box->x + box->width &&
+		    ly >= box->y && ly <= box->y + box->height)
+		{
+			view->frame_area = i;
+
+			if (i < HOPALONG_VIEW_FRAME_AREA_TITLEBAR)
+				view->frame_area_edges |= resize_edges[i];
+
+			return true;
+		}
 	}
 
 	return false;
