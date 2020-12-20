@@ -26,10 +26,17 @@ struct render_data {
 };
 
 static void
-scale_box(struct wlr_box *box, float scale)
+scale_box_coords(struct wlr_box *box, float scale)
 {
 	box->x *= scale;
 	box->y *= scale;
+}
+
+static void
+scale_box(struct wlr_box *box, float scale)
+{
+	scale_box_coords(box, scale);
+
 	box->width *= scale;
 	box->height *= scale;
 }
@@ -86,6 +93,13 @@ render_texture(struct wlr_output *output, struct wlr_box *box, struct wlr_textur
 	return_if_fail(texture != NULL);
 
 	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->backend);
+	struct wlr_box scalebox = {
+		.x = box->x,
+		.y = box->y,
+		.width = box->width,
+		.height = box->height
+	};
+	scale_box_coords(&scalebox, output->scale);
 
 	struct wlr_gles2_texture_attribs attribs;
 	wlr_gles2_texture_get_attribs(texture, &attribs);
@@ -93,7 +107,7 @@ render_texture(struct wlr_output *output, struct wlr_box *box, struct wlr_textur
 	glTexParameteri(attribs.target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	float matrix[9];
-	wlr_matrix_project_box(matrix, box,
+	wlr_matrix_project_box(matrix, &scalebox,
 		WL_OUTPUT_TRANSFORM_NORMAL,
 		0.0, output->transform_matrix);
 
@@ -104,7 +118,15 @@ static void
 render_rect(struct wlr_output *output, struct wlr_box *box, float color[4])
 {
 	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->backend);
-	wlr_render_rect(renderer, box, color, output->transform_matrix);
+	struct wlr_box scalebox = {
+		.x = box->x,
+		.y = box->y,
+		.width = box->width,
+		.height = box->height
+	};
+	scale_box(&scalebox, output->scale);
+
+	wlr_render_rect(renderer, &scalebox, color, output->transform_matrix);
 }
 
 static void
@@ -134,10 +156,10 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	struct wlr_box box;
 	wlr_xdg_surface_get_geometry(xdg_surface, &box);
 
-	box.x = (ox - border_thickness) * output->scale;
-	box.y = (oy - border_thickness) * output->scale;
-	box.width = (box.width + border_thickness * 2) * output->scale;
-	box.height = (box.height + border_thickness * 2) * output->scale;
+	box.x = (ox - border_thickness);
+	box.y = (oy - border_thickness);
+	box.width = (box.width + border_thickness * 2);
+	box.height = (box.height + border_thickness * 2);
 
 	/* copy scratch to base_box */
 	struct wlr_box base_box = {
@@ -148,7 +170,7 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	};
 
 	float border_color[4] = {0.5, 0.5, 0.5, 1.0};
-	int title_bar_offset = (title_bar_height + border_thickness) * output->scale;
+	int title_bar_offset = title_bar_height + border_thickness;
 
 	/* render borders, starting with top */
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP] = (struct wlr_box){
@@ -164,7 +186,7 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 		.x = base_box.x,
 		.y = base_box.y + base_box.height - border_thickness,
 		.width = base_box.width,
-		.height = border_thickness * output->scale,
+		.height = border_thickness,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM], border_color);
 
@@ -172,7 +194,7 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT] = (struct wlr_box){
 		.x = base_box.x,
 		.y = base_box.y,
-		.width = border_thickness * output->scale,
+		.width = border_thickness,
 		.height = base_box.height,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT], border_color);
@@ -181,7 +203,7 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT] = (struct wlr_box){
 		.x = base_box.x + base_box.width - border_thickness,
 		.y = base_box.y,
-		.width = border_thickness * output->scale,
+		.width = border_thickness,
 		.height = base_box.height,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT], border_color);
@@ -193,10 +215,10 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	float title_bar_color_active[4] = {0.1, 0.1, 0.9, 1.0};
 
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR] = (struct wlr_box){
-		.x = base_box.x + (border_thickness * output->scale),
-		.y = base_box.y - (title_bar_height * output->scale),
-		.width = base_box.width - (border_thickness * 2 * output->scale),
-		.height = (title_bar_height * output->scale),
+		.x = base_box.x + border_thickness,
+		.y = base_box.y - title_bar_height,
+		.width = base_box.width - border_thickness,
+		.height = title_bar_height,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR],
 		activated ? title_bar_color_active : title_bar_color);
@@ -205,8 +227,8 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 	if (view->title != NULL)
 	{
 		box = (struct wlr_box){
-			.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + (8 * output->scale),
-			.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + (8 * output->scale),
+			.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + 8,
+			.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + 8,
 			.width = view->title_box.width,
 			.height = view->title_box.height,
 		};
@@ -283,6 +305,64 @@ hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 	wlr_output_commit(output->wlr_output);
 }
 
+#define HIDPI_DPI_LIMIT (2 * 96)
+#define HIDPI_MIN_HEIGHT 1200
+#define MM_PER_INCH 25.4
+
+static int
+compute_default_scale(struct wlr_output *output)
+{
+	struct wlr_box box = {
+		.width = output->width,
+		.height = output->height
+	};
+
+	if (output->pending.committed & WLR_OUTPUT_STATE_MODE)
+	{
+		switch (output->pending.mode_type)
+		{
+		case WLR_OUTPUT_STATE_MODE_FIXED:
+			box.width = output->pending.mode->width;
+			box.height = output->pending.mode->height;
+			break;
+		case WLR_OUTPUT_STATE_MODE_CUSTOM:
+			box.width = output->pending.custom_mode.width;
+			box.height = output->pending.custom_mode.height;
+			break;
+		}
+	}
+
+	enum wl_output_transform transform = output->transform;
+	if (output->pending.committed & WLR_OUTPUT_STATE_TRANSFORM)
+		transform = output->pending.transform;
+
+	wlr_box_transform(&box, &box, transform, box.width, box.height);
+
+	int width = box.width;
+	int height = box.height;
+
+	if (height < HIDPI_MIN_HEIGHT)
+		return 1;
+
+	if (output->phys_width == 0 || output->phys_height == 0)
+		return 1;
+
+	double dpi_x = (double) width / (output->phys_width / MM_PER_INCH);
+	double dpi_y = (double) height / (output->phys_height / MM_PER_INCH);
+	wlr_log(WLR_INFO, "Output DPI: %fx%f", dpi_x, dpi_y);
+	if (dpi_x <= HIDPI_DPI_LIMIT || dpi_y <= HIDPI_DPI_LIMIT)
+		return 1;
+
+	return 2;
+}
+
+static void
+output_configure(struct hopalong_output *output)
+{
+	wlr_output_set_scale(output->wlr_output, compute_default_scale(output->wlr_output));
+	wlr_output_commit(output->wlr_output);
+}
+
 /*
  * Creates a new Hopalong output from a wlroots output.
  */
@@ -300,6 +380,8 @@ hopalong_output_new_from_wlr_output(struct hopalong_server *server, struct wlr_o
 
 	output->frame.notify = hopalong_output_frame_notify;
 	wl_signal_add(&wlr_output->events.frame, &output->frame);
+
+	output_configure(output);
 
 	wl_list_insert(&server->outputs, &output->link);
 
