@@ -145,8 +145,41 @@ cursor_button(struct wl_listener *listener, void *data)
 
 	if (event->state == WLR_BUTTON_RELEASED)
 		server->cursor_mode = HOPALONG_CURSOR_PASSTHROUGH;
-	else
+	else if (view != NULL)
+	{
 		hopalong_xdg_focus_view(view, surface);
+
+		if (view->frame_area == HOPALONG_VIEW_FRAME_AREA_TITLEBAR)
+		{
+			server->cursor_mode = HOPALONG_CURSOR_MOVE;
+			server->grabbed_view = view;
+			server->grab_x = server->cursor->x - view->x;
+			server->grab_y = server->cursor->y - view->y;
+
+			wlr_xdg_surface_get_geometry(view->xdg_surface, &server->grab_geobox);
+			server->grab_geobox.x = view->x;
+			server->grab_geobox.y = view->y;
+
+			return;
+		}
+
+		if (view->frame_area_edges != WLR_EDGE_NONE)
+		{
+			server->cursor_mode = HOPALONG_CURSOR_RESIZE;
+
+			server->grabbed_view = view;
+			server->resize_edges = view->frame_area_edges;
+
+			server->grab_x = 0;
+			server->grab_y = 0;
+
+			wlr_xdg_surface_get_geometry(view->xdg_surface, &server->grab_geobox);
+			server->grab_geobox.x = view->x;
+			server->grab_geobox.y = view->y;
+
+			return;
+		}
+	}
 }
 
 static void
