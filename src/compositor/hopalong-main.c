@@ -23,7 +23,7 @@ launch_session_leader(const char *socket, char *program)
 {
 	char sockenv[4096];
 	char xdgruntimedir[4096];
-	char *sockenvp[] = { sockenv, xdgruntimedir, NULL };
+	char *sockenvp[] = { sockenv, xdgruntimedir, "XDG_SESSION_TYPE=wayland", NULL };
 
 	snprintf(sockenv, sizeof sockenv, "WAYLAND_DISPLAY=%s", socket);
 	snprintf(xdgruntimedir, sizeof xdgruntimedir, "XDG_RUNTIME_DIR=%s", getenv("XDG_RUNTIME_DIR"));
