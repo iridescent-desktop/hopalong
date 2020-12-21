@@ -212,7 +212,7 @@ cursor_button(struct wl_listener *listener, void *data)
 			server->cursor_mode = HOPALONG_CURSOR_RESIZE;
 
 			server->grabbed_view = view;
-			server->resize_edges = view->frame_area_edges;
+			server->resize_edges = frame_area_edges;
 
 			server->grab_x = 0;
 			server->grab_y = 0;
