@@ -89,6 +89,9 @@ hopalong_server_initialize(struct hopalong_server *server)
 	/* set up the seat */
 	hopalong_seat_setup(server);
 
+	/* set up screenshotting */
+	wlr_screencopy_manager_v1_create(server->display);
+
 	return true;
 }
 
