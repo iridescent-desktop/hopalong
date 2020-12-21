@@ -25,5 +25,6 @@ hopalong_exe = executable('hopalong',
     glesv2,
     wlroots,
     xkbcommon
-  ]
+  ],
+  install: true
 )
