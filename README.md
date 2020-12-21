@@ -26,6 +26,5 @@ TODO: Document how to install this crime against humanity.
 
 ## TODO
 
-* Screenshots
 * XWayland shell
 * Damage (partial rendering of the desktop)
