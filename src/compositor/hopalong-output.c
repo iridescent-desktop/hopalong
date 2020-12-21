@@ -130,6 +130,8 @@ render_rect(struct wlr_output *output, struct wlr_box *box, float color[4])
 	wlr_render_rect(renderer, &scalebox, color, output->transform_matrix);
 }
 
+#define BORDER_HITBOX_THICKNESS		(4)
+
 static void
 render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 {
@@ -187,6 +189,8 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 		.height = title_bar_offset,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP], border_color);
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP].y -= BORDER_HITBOX_THICKNESS;
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP].height += BORDER_HITBOX_THICKNESS;
 
 	/* bottom border */
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM] = (struct wlr_box){
@@ -196,6 +200,7 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 		.height = border_thickness,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM], border_color);
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM].height += BORDER_HITBOX_THICKNESS;
 
 	/* left border */
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT] = (struct wlr_box){
@@ -205,6 +210,8 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 		.height = base_box.height,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT], border_color);
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT].x -= BORDER_HITBOX_THICKNESS;
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT].width += BORDER_HITBOX_THICKNESS;
 
 	/* right border */
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT] = (struct wlr_box){
@@ -214,6 +221,7 @@ render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
 		.height = base_box.height,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT], border_color);
+	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT].width += BORDER_HITBOX_THICKNESS;
 
 	/* title bar */
 	bool activated = xdg_surface->toplevel->current.activated;
