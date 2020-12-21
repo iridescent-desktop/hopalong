@@ -121,6 +121,11 @@ process_cursor_motion(struct hopalong_server *server, uint32_t time)
 
 		if (!focus_changed)
 			wlr_seat_pointer_notify_motion(seat, time, sx, sy);
+		else
+		{
+			view->frame_area = -1;
+			view->frame_area_edges = WLR_EDGE_NONE;
+		}
 	}
 	else
 		wlr_seat_pointer_clear_focus(seat);
@@ -168,9 +173,12 @@ cursor_button(struct wl_listener *listener, void *data)
 	}
 	else if (view != NULL)
 	{
+		int frame_area = view->frame_area;
+		int frame_area_edges = view->frame_area_edges;
+
 		hopalong_xdg_focus_view(view, surface);
 
-		if (view->frame_area == HOPALONG_VIEW_FRAME_AREA_TITLEBAR)
+		if (frame_area == HOPALONG_VIEW_FRAME_AREA_TITLEBAR)
 		{
 			server->cursor_mode = HOPALONG_CURSOR_MOVE;
 			server->grabbed_view = view;
@@ -183,26 +191,23 @@ cursor_button(struct wl_listener *listener, void *data)
 
 			return;
 		}
-
-		if (view->frame_area == HOPALONG_VIEW_FRAME_AREA_CLOSE)
+		else if (frame_area == HOPALONG_VIEW_FRAME_AREA_CLOSE)
 		{
 			hopalong_view_close(view);
 			return;
 		}
-
-		if (view->frame_area == HOPALONG_VIEW_FRAME_AREA_MAXIMIZE)
+		else if (frame_area == HOPALONG_VIEW_FRAME_AREA_MAXIMIZE)
 		{
 			hopalong_view_maximize(view);
 			return;
 		}
-
-		if (view->frame_area == HOPALONG_VIEW_FRAME_AREA_MINIMIZE)
+		else if (frame_area == HOPALONG_VIEW_FRAME_AREA_MINIMIZE)
 		{
 			hopalong_view_minimize(view);
 			return;
 		}
 
-		if (view->frame_area_edges != WLR_EDGE_NONE)
+		if (frame_area_edges != WLR_EDGE_NONE)
 		{
 			server->cursor_mode = HOPALONG_CURSOR_RESIZE;
 

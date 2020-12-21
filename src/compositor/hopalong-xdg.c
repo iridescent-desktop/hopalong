@@ -111,6 +111,9 @@ hopalong_xdg_focus_view(struct hopalong_view *view, struct wlr_surface *surface)
 	wl_list_remove(&view->link);
 	wl_list_insert(&server->views, &view->link);
 	wlr_xdg_toplevel_set_activated(view->xdg_surface, true);
+
+	view->frame_area = -1;
+	view->frame_area_edges = WLR_EDGE_NONE;
 }
 
 static void
