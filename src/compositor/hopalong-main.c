@@ -125,6 +125,11 @@ main(int argc, char *argv[], const char *envp[])
 
 	if (optind < argc)
 		launch_session_leader(envp, socket, argv[optind]);
+	else
+	{
+		wlr_log(WLR_INFO, "Using $HOME/.hopalong_init for session leader");
+		launch_session_leader(envp, socket, "sh ~/.hopalong_init");
+	}
 
 	if (!hopalong_server_run(server))
 	{
