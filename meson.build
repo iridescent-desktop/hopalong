@@ -20,4 +20,13 @@ wlroots        = dependency('wlroots')
 xkbcommon      = dependency('xkbcommon')
 
 
+if get_option('xwayland')
+	xcb    = dependency('xcb', required: true)
+
+	if xcb.found()
+		add_project_arguments('-DUSE_XWAYLAND', language: 'c')
+	endif
+endif
+
+
 subdir('src')
