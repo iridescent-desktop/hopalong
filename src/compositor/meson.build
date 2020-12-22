@@ -10,6 +10,7 @@ hopalong_sources = [
   'hopalong-view.c',
   'hopalong-pango-util.c',
   'hopalong-decoration.c',
+  'hopalong-environment.c',
   'hopalong-main.c',
 ]
 

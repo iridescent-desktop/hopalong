@@ -17,25 +17,31 @@
 #include <getopt.h>
 #include <spawn.h>
 #include "hopalong-server.h"
+#include "hopalong-environment.h"
+
 
 static void
-launch_session_leader(const char *socket, char *program)
+launch_session_leader(const char **envp, const char *socket, char *program)
 {
-	char sockenv[4096];
-	char xdgruntimedir[4096];
-	char homedir[4096];
+	char **sockenvp = NULL;
 
-	char *sockenvp[] = {
-		sockenv,
-		xdgruntimedir,
-		"XDG_SESSION_TYPE=wayland",
-		homedir,
-		NULL
-	};
+	if (!hopalong_environment_copy(&sockenvp, envp))
+	{
+		wlr_log(WLR_ERROR, "hopalong_environment_copy failed while launching session leader");
+		return;
+	}
 
-	snprintf(sockenv, sizeof sockenv, "WAYLAND_DISPLAY=%s", socket);
-	snprintf(xdgruntimedir, sizeof xdgruntimedir, "XDG_RUNTIME_DIR=%s", getenv("XDG_RUNTIME_DIR"));
-	snprintf(homedir, sizeof homedir, "HOME=%s", getenv("HOME"));
+	if (!hopalong_environment_push(&sockenvp, "WAYLAND_DISPLAY", socket))
+	{
+		wlr_log(WLR_ERROR, "hopalong_environment_push failed while launching session leader");
+		return;
+	}
+
+	if (!hopalong_environment_push(&sockenvp, "XDG_SESSION_TYPE", "wayland"))
+	{
+		wlr_log(WLR_ERROR, "hopalong_environment_push failed while launching session leader");
+		return;
+	}
 
 	char *shellargs[] = { "/bin/sh", "-i", "-c", program, NULL };
 
@@ -46,6 +52,8 @@ launch_session_leader(const char *socket, char *program)
 		wlr_log(WLR_ERROR, "Failed to launch session leader (%s): %s", program, strerror(errno));
 
 	wlr_log(WLR_INFO, "Session leader running as PID %u", child);
+
+	hopalong_environment_free(&sockenvp);
 }
 
 static void
@@ -65,7 +73,7 @@ usage(int code)
 }
 
 int
-main(int argc, char *argv[])
+main(int argc, char *argv[], const char *envp[])
 {
 	wlr_log_init(WLR_INFO, NULL);
 
@@ -116,7 +124,7 @@ main(int argc, char *argv[])
 	wlr_log(WLR_INFO, "Listening for Wayland clients at: %s", socket);
 
 	if (optind < argc)
-		launch_session_leader(socket, argv[optind]);
+		launch_session_leader(envp, socket, argv[optind]);
 
 	if (!hopalong_server_run(server))
 	{
