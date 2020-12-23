@@ -75,17 +75,18 @@ usage(int code)
 int
 main(int argc, char *argv[], const char *envp[])
 {
-	wlr_log_init(WLR_INFO, NULL);
+	enum wlr_log_importance log_level = WLR_INFO;
 
 	static struct option long_options[] = {
 		{"version",	no_argument, 0, 'V'},
 		{"help",	no_argument, 0, 'h'},
+		{"debug",	no_argument, 0, 'd'},
 		{NULL,		0,	     0, 0 },
 	};
 
 	for (;;)
 	{
-		int c = getopt_long(argc, argv, "Vh", long_options, NULL);
+		int c = getopt_long(argc, argv, "Vhd", long_options, NULL);
 
 		if (c == -1)
 			break;
@@ -100,12 +101,17 @@ main(int argc, char *argv[], const char *envp[])
 			usage(EXIT_SUCCESS);
 			break;
 
+		case 'd':
+			log_level = WLR_DEBUG;
+			break;
+
 		default:
 			usage(EXIT_FAILURE);
 			break;
 		}
 	}
 
+	wlr_log_init(log_level, NULL);
 	struct hopalong_server *server = hopalong_server_new();
 
 	if (server == NULL)
