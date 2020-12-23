@@ -14,18 +14,23 @@ hopalong_sources = [
   'hopalong-main.c',
 ]
 
+hopalong_dependencies = [
+  server_protos,
+  wayland_server,
+  cairo,
+  pangocairo,
+  pixman,
+  glesv2,
+  wlroots,
+  xkbcommon
+]
+
+if lacking_libc
+  hopalong_dependencies += bsd_overlay
+endif
 
 hopalong_exe = executable('hopalong',
   hopalong_sources,
-  dependencies: [
-    server_protos,
-    wayland_server,
-    cairo,
-    pangocairo,
-    pixman,
-    glesv2,
-    wlroots,
-    xkbcommon
-  ],
+  dependencies: hopalong_dependencies,
   install: true
 )

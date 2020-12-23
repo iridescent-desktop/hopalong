@@ -5,6 +5,7 @@ project('hopalong', 'c',
 
 add_project_arguments('-DWLR_USE_UNSTABLE', language: 'c')
 
+cc = meson.get_compiler('c')
 
 wayland_server = dependency('wayland-server')
 wayland_client = dependency('wayland-client')
@@ -19,6 +20,12 @@ glesv2	       = dependency('glesv2')
 wlroots        = dependency('wlroots')
 xkbcommon      = dependency('xkbcommon')
 
+# glibc lacks strl*. if we can't detect them, assume we need libbsd
+lacking_libc = false
+if cc.has_function('strlcpy') == false or cc.has_function('strlcat') == false
+  lacking_libc = true
+  bsd_overlay = dependency('libbsd-overlay')
+endif
 
 if get_option('xwayland')
 	xcb    = dependency('xcb', required: true)
