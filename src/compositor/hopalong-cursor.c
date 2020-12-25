@@ -163,8 +163,6 @@ cursor_button(struct wl_listener *listener, void *data)
 	struct wlr_surface *surface;
 	struct hopalong_view *view = hopalong_xdg_desktop_view_at(server, server->cursor->x, server->cursor->y, &surface, &sx, &sy);
 
-	wlr_log(WLR_INFO, "view %p, sx=%f sy=%f", view, sx, sy);
-
 	if (event->state == WLR_BUTTON_RELEASED)
 	{
 		server->cursor_mode = HOPALONG_CURSOR_PASSTHROUGH;

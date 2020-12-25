@@ -55,14 +55,17 @@ hopalong_xdg_view_at(struct hopalong_view *view,
 	}
 
 	if (view->xdg_surface != NULL)
+	{
 		_surface = wlr_xdg_surface_surface_at(view->xdg_surface, view_sx, view_sy, &_sx, &_sy);
 
-	if (_surface != NULL)
-	{
-		*sx = _sx;
-		*sy = _sy;
-		*surface = _surface;
-		return true;
+		if (_surface != NULL)
+		{
+			*sx = _sx;
+			*sy = _sy;
+			*surface = _surface;
+
+			return true;
+		}
 	}
 
 	/* check for frame areas */
