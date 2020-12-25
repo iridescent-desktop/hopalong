@@ -133,11 +133,44 @@ render_rect(struct wlr_output *output, struct wlr_box *box, float color[4])
 #define BORDER_HITBOX_THICKNESS		(4)
 
 static void
+render_view_surface(struct hopalong_view *view, struct render_data *data)
+{
+	if (view->xdg_surface != NULL)
+	{
+		wlr_xdg_surface_for_each_surface(view->xdg_surface, render_surface, data);
+		return;
+	}
+
+	wlr_log(WLR_ERROR, "render_view_surface: don't know how to render view %p", view);
+}
+
+static bool
+get_view_geometry(struct hopalong_view *view, struct wlr_box *box)
+{
+	if (view->xdg_surface != NULL)
+	{
+		wlr_xdg_surface_get_geometry(view->xdg_surface, box);
+		return true;
+	}
+
+	wlr_log(WLR_ERROR, "get_view_geometry: don't know how to get geometry for view %p", view);
+	return false;
+}
+
+static bool
+view_is_activated(struct hopalong_view *view)
+{
+	/* XXX: we should track activation status ourselves in a shell-independent way */
+	if (view->xdg_surface != NULL && view->xdg_surface->toplevel != NULL)
+		return view->xdg_surface->toplevel->current.activated;
+
+	wlr_log(WLR_ERROR, "view_is_activated: don't know activation state for view %p", view);
+	return false;
+}
+
+static void
 render_container(struct hopalong_view *view, struct render_data *data)
 {
-	struct wlr_xdg_surface *xdg_surface = view->xdg_surface;
-	return_if_fail(xdg_surface != NULL);
-
 	struct render_data *rdata = data;
 	return_if_fail(rdata != NULL);
 
@@ -146,7 +179,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 
 	if (view->using_csd)
 	{
-		wlr_xdg_surface_for_each_surface(xdg_surface, render_surface, data);
+		render_view_surface(view, data);
 		return;
 	}
 
@@ -161,7 +194,8 @@ render_container(struct hopalong_view *view, struct render_data *data)
 
 	/* scratch geometry */
 	struct wlr_box box;
-	wlr_xdg_surface_get_geometry(xdg_surface, &box);
+	if (!get_view_geometry(view, &box))
+		return;
 
 	box.x = (ox - border_thickness);
 	box.y = (oy - border_thickness);
@@ -222,7 +256,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT].width += BORDER_HITBOX_THICKNESS;
 
 	/* title bar */
-	bool activated = xdg_surface->toplevel->current.activated;
+	bool activated = view_is_activated(view);
 
 	float title_bar_color[4] = {0.9, 0.9, 0.9, 1.0};
 	float title_bar_color_active[4] = {0.1, 0.1, 0.9, 1.0};
@@ -281,7 +315,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 		activated ? rdata->textures->minimize : rdata->textures->minimize_inactive, output->scale);
 
 	/* render the surface itself */
-	wlr_xdg_surface_for_each_surface(xdg_surface, render_surface, data);
+	render_view_surface(view, data);
 }
 
 static void
