@@ -19,6 +19,7 @@ pangocairo     = dependency('pangocairo')
 glesv2	       = dependency('glesv2')
 wlroots        = dependency('wlroots')
 xkbcommon      = dependency('xkbcommon')
+glib           = dependency('glib-2.0')
 
 # glibc lacks strl*. if we can't detect them, assume we need libbsd
 lacking_libc = false

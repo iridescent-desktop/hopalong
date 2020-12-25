@@ -23,7 +23,8 @@ hopalong_dependencies = [
   pixman,
   glesv2,
   wlroots,
-  xkbcommon
+  xkbcommon,
+  glib
 ]
 
 if lacking_libc
