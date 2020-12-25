@@ -59,6 +59,7 @@ struct hopalong_view_ops {
 	void (*close)(struct hopalong_view *view);
 	const char *(*getprop)(struct hopalong_view *view, enum hopalong_view_prop prop);
 	struct wlr_surface *(*get_surface)(struct hopalong_view *view);
+	void (*set_activated)(struct hopalong_view *view, bool activated);
 };
 
 struct hopalong_view {
@@ -91,6 +92,7 @@ struct hopalong_view {
 
 	/* client-side decorations */
 	bool using_csd;
+	bool activated;
 };
 
 struct hopalong_generated_textures {
@@ -111,7 +113,9 @@ extern void hopalong_view_minimize(struct hopalong_view *view);
 extern void hopalong_view_maximize(struct hopalong_view *view);
 extern void hopalong_view_close(struct hopalong_view *view);
 extern const char *hopalong_view_getprop(struct hopalong_view *view, enum hopalong_view_prop prop);
+extern void hopalong_view_focus(struct hopalong_view *view, struct wlr_surface *surface);
 extern void hopalong_view_destroy(struct hopalong_view *view);
 extern struct wlr_surface *hopalong_view_get_surface(struct hopalong_view *view);
+extern void hopalong_view_set_activated(struct hopalong_view *view, bool activated);
 
 #endif

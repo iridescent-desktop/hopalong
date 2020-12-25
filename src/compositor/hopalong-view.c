@@ -309,3 +309,63 @@ hopalong_view_get_surface(struct hopalong_view *view)
 
 	return view->ops->get_surface(view);
 }
+
+static struct hopalong_view *
+hopalong_view_from_wlr_surface(struct hopalong_server *server, struct wlr_surface *surface)
+{
+	struct hopalong_view *view;
+
+	wl_list_for_each(view, &server->views, link)
+	{
+		if (surface == hopalong_view_get_surface(view))
+			return view;
+	}
+
+	return NULL;
+}
+
+void
+hopalong_view_set_activated(struct hopalong_view *view, bool activated)
+{
+	return_if_fail(view != NULL);
+	return_if_fail(view->ops != NULL);
+
+	view->ops->set_activated(view, activated);
+	view->activated = activated;
+}
+
+void
+hopalong_view_focus(struct hopalong_view *view, struct wlr_surface *surface)
+{
+	return_if_fail(view != NULL);
+
+	struct hopalong_server *server = view->server;
+	return_if_fail(server != NULL);
+
+	struct wlr_seat *seat = server->seat;
+	return_if_fail(seat != NULL);
+
+	struct wlr_surface *prev_surface = seat->keyboard_state.focused_surface;
+	if (prev_surface == surface)
+		return;
+
+	if (prev_surface != NULL)
+	{
+		struct hopalong_view *prev_view = hopalong_view_from_wlr_surface(server, prev_surface);
+
+		hopalong_view_set_activated(prev_view, false);
+//		wlr_xdg_toplevel_set_activated(previous, false);
+	}
+
+	struct wlr_keyboard *keyboard = wlr_seat_get_keyboard(seat);
+	wlr_seat_keyboard_notify_enter(seat, view->xdg_surface->surface,
+		keyboard->keycodes, keyboard->num_keycodes, &keyboard->modifiers);
+
+	wl_list_remove(&view->link);
+	wl_list_insert(&server->views, &view->link);
+	hopalong_view_set_activated(view, true);
+//	wlr_xdg_toplevel_set_activated(view->xdg_surface, true);
+
+	view->frame_area = -1;
+	view->frame_area_edges = WLR_EDGE_NONE;
+}

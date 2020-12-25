@@ -76,12 +76,22 @@ hopalong_xwayland_toplevel_get_surface(struct hopalong_view *view)
 	return view->xwayland_surface->surface;
 }
 
+static void
+hopalong_xwayland_toplevel_set_activated(struct hopalong_view *view, bool activated)
+{
+	struct hopalong_server *server = view->server;
+
+	wlr_xwayland_set_seat(server->wlr_xwayland, server->seat);
+	wlr_xwayland_surface_activate(view->xwayland_surface, true);
+}
+
 static const struct hopalong_view_ops hopalong_xwayland_view_ops = {
 	.minimize = hopalong_xwayland_toplevel_minimize,
 	.maximize = hopalong_xwayland_toplevel_maximize,
 	.close = hopalong_xwayland_toplevel_close,
 	.getprop = hopalong_xwayland_toplevel_getprop,
 	.get_surface = hopalong_xwayland_toplevel_get_surface,
+	.set_activated = hopalong_xwayland_toplevel_set_activated,
 };
 
 static void

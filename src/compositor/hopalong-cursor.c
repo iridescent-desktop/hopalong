@@ -176,7 +176,7 @@ cursor_button(struct wl_listener *listener, void *data)
 		int frame_area = view->frame_area;
 		int frame_area_edges = view->frame_area_edges;
 
-		hopalong_xdg_focus_view(view, surface);
+		hopalong_view_focus(view, surface);
 
 		if (frame_area == HOPALONG_VIEW_FRAME_AREA_TITLEBAR)
 		{

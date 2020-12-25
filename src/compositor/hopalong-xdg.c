@@ -84,41 +84,6 @@ hopalong_xdg_desktop_view_at(struct hopalong_server *server, double lx, double l
 	return NULL;
 }
 
-void
-hopalong_xdg_focus_view(struct hopalong_view *view, struct wlr_surface *surface)
-{
-	return_if_fail(view != NULL);
-
-	struct hopalong_server *server = view->server;
-	return_if_fail(server != NULL);
-
-	struct wlr_seat *seat = server->seat;
-	return_if_fail(seat != NULL);
-
-	struct wlr_surface *prev_surface = seat->keyboard_state.focused_surface;
-	if (prev_surface == surface)
-		return;
-
-	if (prev_surface != NULL)
-	{
-		struct wlr_xdg_surface *previous =
-			wlr_xdg_surface_from_wlr_surface(seat->keyboard_state.focused_surface);
-
-		wlr_xdg_toplevel_set_activated(previous, false);
-	}
-
-	struct wlr_keyboard *keyboard = wlr_seat_get_keyboard(seat);
-	wlr_seat_keyboard_notify_enter(seat, view->xdg_surface->surface,
-		keyboard->keycodes, keyboard->num_keycodes, &keyboard->modifiers);
-
-	wl_list_remove(&view->link);
-	wl_list_insert(&server->views, &view->link);
-	wlr_xdg_toplevel_set_activated(view->xdg_surface, true);
-
-	view->frame_area = -1;
-	view->frame_area_edges = WLR_EDGE_NONE;
-}
-
 static void
 hopalong_xdg_surface_map(struct wl_listener *listener, void *data)
 {
@@ -127,7 +92,7 @@ hopalong_xdg_surface_map(struct wl_listener *listener, void *data)
 	struct hopalong_view *view = wl_container_of(listener, view, map);
 	view->mapped = true;
 
-	hopalong_xdg_focus_view(view, view->xdg_surface->surface);
+	hopalong_view_focus(view, view->xdg_surface->surface);
 }
 
 static void
@@ -258,12 +223,19 @@ hopalong_xdg_toplevel_get_surface(struct hopalong_view *view)
 	return view->xdg_surface->surface;
 }
 
+static void
+hopalong_xdg_toplevel_set_activated(struct hopalong_view *view, bool activated)
+{
+	wlr_xdg_toplevel_set_activated(view->xdg_surface, activated);
+}
+
 static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 	.minimize = hopalong_xdg_toplevel_minimize,
 	.maximize = hopalong_xdg_toplevel_maximize,
 	.close = hopalong_xdg_toplevel_close,
 	.getprop = hopalong_xdg_toplevel_getprop,
 	.get_surface = hopalong_xdg_toplevel_get_surface,
+	.set_activated = hopalong_xdg_toplevel_set_activated,
 };
 
 static void
