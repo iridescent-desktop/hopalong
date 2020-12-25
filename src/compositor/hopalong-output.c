@@ -116,7 +116,7 @@ render_texture(struct wlr_output *output, struct wlr_box *box, struct wlr_textur
 }
 
 static void
-render_rect(struct wlr_output *output, struct wlr_box *box, float color[4])
+render_rect(struct wlr_output *output, struct wlr_box *box, const float color[4])
 {
 	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->backend);
 	struct wlr_box scalebox = {
@@ -155,6 +155,9 @@ render_view_surface(struct hopalong_view *view, struct render_data *data)
 static void
 render_container(struct hopalong_view *view, struct render_data *data)
 {
+	const struct hopalong_style *style = view->server->style;
+	return_if_fail(style != NULL);
+
 	struct render_data *rdata = data;
 	return_if_fail(rdata != NULL);
 
@@ -173,18 +176,15 @@ render_container(struct hopalong_view *view, struct render_data *data)
 	ox += view->x + 0;
 	oy += view->y + 0;
 
-	int border_thickness = 1;
-	int title_bar_height = 32;
-
 	/* scratch geometry */
 	struct wlr_box box;
 	if (!hopalong_view_get_geometry(view, &box))
 		return;
 
-	box.x = (ox - border_thickness);
-	box.y = (oy - border_thickness);
-	box.width = (box.width + (border_thickness * 2));
-	box.height = (box.height + (border_thickness * 2));
+	box.x = (ox - style->border_thickness);
+	box.y = (oy - style->border_thickness);
+	box.width = (box.width + (style->border_thickness * 2));
+	box.height = (box.height + (style->border_thickness * 2));
 
 	/* copy scratch to base_box */
 	struct wlr_box base_box = {
@@ -194,8 +194,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 		.height = box.height,
 	};
 
-	float border_color[4] = {0.5, 0.5, 0.5, 1.0};
-	int title_bar_offset = title_bar_height + border_thickness;
+	int title_bar_offset = style->title_bar_height + style->border_thickness;
 
 	/* render borders, starting with top */
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP] = (struct wlr_box){
@@ -204,62 +203,59 @@ render_container(struct hopalong_view *view, struct render_data *data)
 		.width = base_box.width,
 		.height = title_bar_offset,
 	};
-	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP], border_color);
+	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP], style->border);
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP].y -= BORDER_HITBOX_THICKNESS;
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP].height += BORDER_HITBOX_THICKNESS;
 
 	/* bottom border */
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM] = (struct wlr_box){
 		.x = base_box.x,
-		.y = base_box.y + base_box.height - border_thickness,
+		.y = base_box.y + base_box.height - style->border_thickness,
 		.width = base_box.width,
-		.height = border_thickness,
+		.height = style->border_thickness,
 	};
-	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM], border_color);
+	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM], style->border);
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_BOTTOM].height += BORDER_HITBOX_THICKNESS;
 
 	/* left border */
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT] = (struct wlr_box){
 		.x = base_box.x,
 		.y = base_box.y,
-		.width = border_thickness,
+		.width = style->border_thickness,
 		.height = base_box.height,
 	};
-	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT], border_color);
+	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT], style->border);
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT].x -= BORDER_HITBOX_THICKNESS;
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_LEFT].width += BORDER_HITBOX_THICKNESS;
 
 	/* right border */
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT] = (struct wlr_box){
-		.x = base_box.x + base_box.width - border_thickness,
+		.x = base_box.x + base_box.width - style->border_thickness,
 		.y = base_box.y,
-		.width = border_thickness,
+		.width = style->border_thickness,
 		.height = base_box.height,
 	};
-	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT], border_color);
+	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT], style->border);
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT].width += BORDER_HITBOX_THICKNESS;
 
 	/* title bar */
 	bool activated = view->activated;
 
-	float title_bar_color[4] = {0.9, 0.9, 0.9, 1.0};
-	float title_bar_color_active[4] = {0.1, 0.1, 0.9, 1.0};
-
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR] = (struct wlr_box){
-		.x = base_box.x + border_thickness,
-		.y = base_box.y - title_bar_height,
-		.width = base_box.width - (border_thickness * 2),
-		.height = title_bar_height + 1,
+		.x = base_box.x + style->border_thickness,
+		.y = base_box.y - style->title_bar_height,
+		.width = base_box.width - (style->border_thickness * 2),
+		.height = style->title_bar_height + 1,
 	};
 	render_rect(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR],
-		activated ? title_bar_color_active : title_bar_color);
+		activated ? style->title_bar_bg : style->title_bar_bg_inactive);
 
 	/* title bar text */
 	if (view->title != NULL)
 	{
 		box = (struct wlr_box){
-			.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + 8,
-			.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + 8,
+			.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + style->title_bar_padding,
+			.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + style->title_bar_padding,
 			.width = view->title_box.width,
 			.height = view->title_box.height,
 		};
@@ -270,8 +266,8 @@ render_container(struct hopalong_view *view, struct render_data *data)
 	/* close button */
 	return_if_fail(rdata->textures->close != NULL);
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_CLOSE] = (struct wlr_box){
-		.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + (base_box.width - border_thickness - 8 - 16),
-		.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + 8,
+		.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].x + (base_box.width - style->border_thickness - (style->title_bar_padding * 3)),
+		.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR].y + style->title_bar_padding,
 		.width = 16,
 		.height = 16,
 	};
@@ -280,7 +276,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 
 	return_if_fail(rdata->textures->maximize != NULL);
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MAXIMIZE] = (struct wlr_box){
-		.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_CLOSE].x - 24,
+		.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_CLOSE].x - (16 + style->title_bar_padding),
 		.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_CLOSE].y,
 		.width = 16,
 		.height = 16,
@@ -290,7 +286,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 
 	return_if_fail(rdata->textures->minimize != NULL);
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MINIMIZE] = (struct wlr_box){
-		.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MAXIMIZE].x - 24,
+		.x = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MAXIMIZE].x - (16 + style->title_bar_padding),
 		.y = view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MAXIMIZE].y,
 		.width = 16,
 		.height = 16,
@@ -325,6 +321,9 @@ hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 	struct wlr_renderer *renderer = output->server->renderer;
 	return_if_fail(renderer != NULL);
 
+	const struct hopalong_style *style = output->server->style;
+	return_if_fail(style != NULL);
+
 	/* regenerate textures */
 	regenerate_textures(output);
 
@@ -339,8 +338,7 @@ hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 	wlr_renderer_begin(renderer, output->wlr_output->width, output->wlr_output->height);
 
 	/* clear to something slightly off-gray in order to show the renderer is alive */
-	float color[4] = {0.3, 0.3, 0.5, 1.0};
-	wlr_renderer_clear(renderer, color);
+	wlr_renderer_clear(renderer, style->base_bg);
 
 	/* render the views */
 	struct hopalong_view *view;
@@ -443,7 +441,7 @@ hopalong_output_new_from_wlr_output(struct hopalong_server *server, struct wlr_o
 
 	output_configure(output);
 
-	output->generated_textures = hopalong_generate_builtin_textures_for_output(output);
+	output->generated_textures = hopalong_generate_builtin_textures_for_output(output, server->style);
 
 	wl_list_insert(&server->outputs, &output->link);
 
@@ -461,5 +459,5 @@ hopalong_output_destroy(struct hopalong_output *output)
 	/* XXX: should we destroy the underlying wlr_output? */
 
 	wl_list_remove(&output->link);
-	free(output);	
+	free(output);
 }

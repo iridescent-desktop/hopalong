@@ -14,7 +14,7 @@
 #include "hopalong-style.h"
 
 static const struct hopalong_style default_style = {
-	.base_bg = {0.3, 0.3, 0.5, 1.0},
+	.base_bg = {0.3, 0.2, 0.5, 1.0},
 
 	.title_bar_bg = {0.1, 0.1, 0.9, 1.0},
 	.title_bar_bg_inactive = {0.9, 0.9, 0.9, 1.0},
@@ -23,13 +23,13 @@ static const struct hopalong_style default_style = {
 	.title_bar_fg_inactive = {0.2, 0.2, 0.2, 1.0},
 
 	.minimize_btn_fg = {1.0, 1.0, 1.0, 1.0},
-	.minimize_btn_fg_inactive = {0.2, 0.2, 0.2, 0.2},
+	.minimize_btn_fg_inactive = {0.2, 0.2, 0.2, 1.0},
 
 	.maximize_btn_fg = {1.0, 1.0, 1.0, 1.0},
-	.maximize_btn_fg_inactive = {0.2, 0.2, 0.2, 0.2},
+	.maximize_btn_fg_inactive = {0.2, 0.2, 0.2, 1.0},
 
 	.close_btn_fg = {1.0, 1.0, 1.0, 1.0},
-	.close_btn_fg_inactive = {0.2, 0.2, 0.2, 0.2},
+	.close_btn_fg_inactive = {0.2, 0.2, 0.2, 1.0},
 
 	.border = {0.5, 0.5, 0.5, 1.0},
 	.border_inactive = {0.5, 0.5, 0.5, 1.0},

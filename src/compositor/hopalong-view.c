@@ -20,7 +20,7 @@
 #include "hopalong-pango-util.h"
 
 static struct wlr_texture *
-generate_minimize_texture(struct hopalong_output *output, float color[4])
+generate_minimize_texture(struct hopalong_output *output, const float color[4])
 {
 	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 32, 32);
 	return_val_if_fail(surface != NULL, false);
@@ -55,7 +55,7 @@ generate_minimize_texture(struct hopalong_output *output, float color[4])
 }
 
 static struct wlr_texture *
-generate_maximize_texture(struct hopalong_output *output, float color[4])
+generate_maximize_texture(struct hopalong_output *output, const float color[4])
 {
 	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 32, 32);
 	return_val_if_fail(surface != NULL, false);
@@ -92,7 +92,7 @@ generate_maximize_texture(struct hopalong_output *output, float color[4])
 }
 
 static struct wlr_texture *
-generate_close_texture(struct hopalong_output *output, float color[4])
+generate_close_texture(struct hopalong_output *output, const float color[4])
 {
 	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 32, 32);
 	return_val_if_fail(surface != NULL, false);
@@ -129,21 +129,18 @@ generate_close_texture(struct hopalong_output *output, float color[4])
 }
 
 struct hopalong_generated_textures *
-hopalong_generate_builtin_textures_for_output(struct hopalong_output *output)
+hopalong_generate_builtin_textures_for_output(struct hopalong_output *output, const struct hopalong_style *style)
 {
-	float active[4] = {1.0, 1.0, 1.0, 1.0};
-	float inactive[4] = {0.2, 0.2, 0.2, 1.0};
-
 	struct hopalong_generated_textures *gentex = calloc(1, sizeof(*gentex));
 
-	gentex->minimize = generate_minimize_texture(output, active);
-	gentex->minimize_inactive = generate_minimize_texture(output, inactive);
+	gentex->minimize = generate_minimize_texture(output, style->minimize_btn_fg);
+	gentex->minimize_inactive = generate_minimize_texture(output, style->minimize_btn_fg_inactive);
 
-	gentex->maximize = generate_maximize_texture(output, active);
-	gentex->maximize_inactive = generate_maximize_texture(output, inactive);
+	gentex->maximize = generate_maximize_texture(output, style->maximize_btn_fg);
+	gentex->maximize_inactive = generate_maximize_texture(output, style->maximize_btn_fg_inactive);
 
-	gentex->close = generate_close_texture(output, active);
-	gentex->close_inactive = generate_close_texture(output, inactive);
+	gentex->close = generate_close_texture(output, style->close_btn_fg);
+	gentex->close_inactive = generate_close_texture(output, style->close_btn_fg_inactive);
 
 	return gentex;
 }
@@ -159,7 +156,8 @@ hopalong_view_generate_title_texture(struct hopalong_output *output, struct hopa
 		wlr_texture_destroy(view->title_inactive);
 	}
 
-	const char *font = "Sans 10";
+	const struct hopalong_style *style = view->server->style;
+	const char *font = style->title_bar_font;
 
 	char title[4096] = {};
 
@@ -201,8 +199,8 @@ hopalong_view_generate_title_texture(struct hopalong_output *output, struct hopa
 	cairo_move_to(cr, 0, 0);
 
 	/* active color first */
-	float color[4] = {1.0, 1.0, 1.0, 1.0};
-	cairo_set_source_rgba(cr, color[0], color[1], color[2], color[3]);
+	cairo_set_source_rgba(cr, style->title_bar_fg[0], style->title_bar_fg[1],
+			      style->title_bar_fg[2], style->title_bar_fg[3]);
 	hopalong_pango_util_printf(cr, font, scale, true, "%s", title);
 	cairo_surface_flush(surface);
 
@@ -214,8 +212,8 @@ hopalong_view_generate_title_texture(struct hopalong_output *output, struct hopa
 		w, h, data);
 
 	/* inactive color */
-	float inactive_color[4] = {0.2, 0.2, 0.2, 1.0};
-	cairo_set_source_rgba(cr, inactive_color[0], inactive_color[1], inactive_color[2], inactive_color[3]);
+	cairo_set_source_rgba(cr, style->title_bar_fg_inactive[0], style->title_bar_fg_inactive[1],
+			      style->title_bar_fg_inactive[2], style->title_bar_fg_inactive[3]);
 	hopalong_pango_util_printf(cr, font, scale, true, "%s", title);
 	cairo_surface_flush(surface);
 

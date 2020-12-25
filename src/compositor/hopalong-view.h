@@ -32,6 +32,8 @@
 #include <wlr/util/log.h>
 #include <xkbcommon/xkbcommon.h>
 
+#include "hopalong-style.h"
+
 struct hopalong_output;
 struct hopalong_server;
 struct hopalong_view;
@@ -110,7 +112,7 @@ struct hopalong_generated_textures {
 	struct wlr_texture *close_inactive;
 };
 
-extern struct hopalong_generated_textures *hopalong_generate_builtin_textures_for_output(struct hopalong_output *output);
+extern struct hopalong_generated_textures *hopalong_generate_builtin_textures_for_output(struct hopalong_output *output, const struct hopalong_style *style);
 extern bool hopalong_view_generate_textures(struct hopalong_output *output, struct hopalong_view *view);
 
 extern void hopalong_view_minimize(struct hopalong_view *view);
