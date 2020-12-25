@@ -289,7 +289,9 @@ hopalong_view_destroy(struct hopalong_view *view)
 	return_if_fail(view != NULL);
 
 	wl_list_remove(&view->link);
-	wl_list_remove(&view->mapped_link);
+
+	if (view->mapped)
+		wl_list_remove(&view->mapped_link);
 
 	if (view->title != NULL)
 	{
