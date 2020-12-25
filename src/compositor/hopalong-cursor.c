@@ -84,7 +84,7 @@ process_cursor_resize(struct hopalong_server *server, uint32_t time)
 
 	int new_width = new_right - new_left;
 	int new_height = new_bottom - new_top;
-	wlr_xdg_toplevel_set_size(view->xdg_surface, new_width, new_height);
+	hopalong_view_set_size(view, new_width, new_height);
 }
 
 static void

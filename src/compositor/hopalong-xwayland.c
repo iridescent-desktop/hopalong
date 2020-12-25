@@ -102,6 +102,12 @@ hopalong_xwayland_toplevel_get_geometry(struct hopalong_view *view, struct wlr_b
 	return true;
 }
 
+static void
+hopalong_xwayland_toplevel_set_size(struct hopalong_view *view, int width, int height)
+{
+	wlr_xwayland_surface_configure(view->xwayland_surface, view->x, view->y, width, height);
+}
+
 static const struct hopalong_view_ops hopalong_xwayland_view_ops = {
 	.minimize = hopalong_xwayland_toplevel_minimize,
 	.maximize = hopalong_xwayland_toplevel_maximize,
@@ -110,6 +116,7 @@ static const struct hopalong_view_ops hopalong_xwayland_view_ops = {
 	.get_surface = hopalong_xwayland_toplevel_get_surface,
 	.set_activated = hopalong_xwayland_toplevel_set_activated,
 	.get_geometry = hopalong_xwayland_toplevel_get_geometry,
+	.set_size = hopalong_xwayland_toplevel_set_size,
 };
 
 static void

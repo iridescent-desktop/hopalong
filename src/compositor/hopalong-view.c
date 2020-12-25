@@ -379,3 +379,12 @@ hopalong_view_get_geometry(struct hopalong_view *view, struct wlr_box *box)
 
 	return view->ops->get_geometry(view, box);
 }
+
+void
+hopalong_view_set_size(struct hopalong_view *view, int new_width, int new_height)
+{
+	return_if_fail(view != NULL);
+	return_if_fail(view->ops != NULL);
+
+	return view->ops->set_size(view, new_width, new_height);
+}

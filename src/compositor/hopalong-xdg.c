@@ -259,6 +259,12 @@ hopalong_xdg_toplevel_get_geometry(struct hopalong_view *view, struct wlr_box *b
 	return true;
 }
 
+static void
+hopalong_xdg_toplevel_set_size(struct hopalong_view *view, int width, int height)
+{
+	wlr_xdg_toplevel_set_size(view->xdg_surface, width, height);
+}
+
 static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 	.minimize = hopalong_xdg_toplevel_minimize,
 	.maximize = hopalong_xdg_toplevel_maximize,
@@ -267,6 +273,7 @@ static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 	.get_surface = hopalong_xdg_toplevel_get_surface,
 	.set_activated = hopalong_xdg_toplevel_set_activated,
 	.get_geometry = hopalong_xdg_toplevel_get_geometry,
+	.set_size = hopalong_xdg_toplevel_set_size,
 };
 
 static void
