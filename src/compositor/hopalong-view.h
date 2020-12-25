@@ -48,10 +48,16 @@ enum hopalong_view_frame_area {
 	HOPALONG_VIEW_FRAME_AREA_COUNT,
 };
 
+enum hopalong_view_prop {
+	HOPALONG_VIEW_TITLE,
+	HOPALONG_VIEW_APP_ID,
+};
+
 struct hopalong_view_ops {
 	void (*minimize)(struct hopalong_view *view);
 	void (*maximize)(struct hopalong_view *view);
 	void (*close)(struct hopalong_view *view);
+	const char *(*getprop)(struct hopalong_view *view, enum hopalong_view_prop prop);
 };
 
 struct hopalong_view {
@@ -101,5 +107,6 @@ extern bool hopalong_view_generate_textures(struct hopalong_output *output, stru
 extern void hopalong_view_minimize(struct hopalong_view *view);
 extern void hopalong_view_maximize(struct hopalong_view *view);
 extern void hopalong_view_close(struct hopalong_view *view);
+extern const char *hopalong_view_getprop(struct hopalong_view *view, enum hopalong_view_prop prop);
 
 #endif

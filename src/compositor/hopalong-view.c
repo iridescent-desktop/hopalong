@@ -163,10 +163,11 @@ hopalong_view_generate_title_texture(struct hopalong_output *output, struct hopa
 
 	char title[4096] = {};
 
-	if (view->xdg_surface->toplevel->title)
-		strlcpy(title, view->xdg_surface->toplevel->title, sizeof title);
-	else if (view->xdg_surface->toplevel->app_id)
-		strlcpy(title, view->xdg_surface->toplevel->app_id, sizeof title);
+	const char *title_data = hopalong_view_getprop(view, HOPALONG_VIEW_TITLE);
+	if (title_data == NULL)
+		title_data = hopalong_view_getprop(view, HOPALONG_VIEW_APP_ID);
+	if (title_data != NULL)
+		strlcpy(title, title_data, sizeof title);
 
 	float scale = output->wlr_output->scale;
 	int w = 400;
@@ -273,4 +274,13 @@ hopalong_view_close(struct hopalong_view *view)
 	return_if_fail(view->ops != NULL);
 
 	view->ops->close(view);
+}
+
+const char *
+hopalong_view_getprop(struct hopalong_view *view, enum hopalong_view_prop prop)
+{
+	return_val_if_fail(view != NULL, NULL);
+	return_val_if_fail(view->ops != NULL, NULL);
+
+	return view->ops->getprop(view, prop);
 }

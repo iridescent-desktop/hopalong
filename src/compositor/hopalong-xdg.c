@@ -243,10 +243,25 @@ hopalong_xdg_toplevel_close(struct hopalong_view *view)
 	wlr_xdg_toplevel_send_close(surface);
 }
 
+static const char *
+hopalong_xdg_toplevel_getprop(struct hopalong_view *view, enum hopalong_view_prop prop)
+{
+	switch (prop)
+	{
+	case HOPALONG_VIEW_TITLE:
+		return view->xdg_surface->toplevel->title;
+	case HOPALONG_VIEW_APP_ID:
+		return view->xdg_surface->toplevel->app_id;
+	}
+
+	return NULL;
+}
+
 static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 	.minimize = hopalong_xdg_toplevel_minimize,
 	.maximize = hopalong_xdg_toplevel_maximize,
 	.close = hopalong_xdg_toplevel_close,
+	.getprop = hopalong_xdg_toplevel_getprop,
 };
 
 static void
