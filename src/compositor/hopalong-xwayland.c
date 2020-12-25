@@ -37,6 +37,13 @@ hopalong_xwayland_destroy(struct wl_listener *listener, void *data)
 }
 
 static void
+hopalong_xwayland_set_title(struct wl_listener *listener, void *data)
+{
+	struct hopalong_view *view = wl_container_of(listener, view, set_title);
+	view->title_dirty = true;
+}
+
+static void
 hopalong_xwayland_toplevel_minimize(struct hopalong_view *view)
 {
 	wlr_log(WLR_INFO, "hopalong_xwayland_toplevel_minimize: not implemented");
@@ -57,16 +64,14 @@ hopalong_xwayland_toplevel_close(struct hopalong_view *view)
 static const char *
 hopalong_xwayland_toplevel_getprop(struct hopalong_view *view, enum hopalong_view_prop prop)
 {
-	wlr_log(WLR_INFO, "hopalong_xwayland_toplevel_getprop: not implemented");
-#if 0
 	switch (prop)
 	{
 	case HOPALONG_VIEW_TITLE:
-		return view->xdg_surface->toplevel->title;
+		return view->xwayland_surface->title;
 	case HOPALONG_VIEW_APP_ID:
-		return view->xdg_surface->toplevel->app_id;
+		return view->xwayland_surface->class;
 	}
-#endif
+
 	return NULL;
 }
 
@@ -165,7 +170,12 @@ hopalong_xwayland_new_surface(struct wl_listener *listener, void *data)
 	view->request_configure.notify = hopalong_xwayland_request_configure;
 	wl_signal_add(&xwayland_surface->events.request_configure, &view->request_configure);
 
+	view->set_title.notify = hopalong_xwayland_set_title;
+	wl_signal_add(&xwayland_surface->events.set_title, &view->set_title);
+
 	wl_list_insert(&server->views, &view->link);
+
+	view->title_dirty = true;
 }
 
 void
