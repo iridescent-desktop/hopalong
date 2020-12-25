@@ -78,7 +78,7 @@ process_cursor_resize(struct hopalong_server *server, uint32_t time)
         }
 
 	struct wlr_box geo_box;
-	wlr_xdg_surface_get_geometry(view->xdg_surface, &geo_box);
+	hopalong_view_get_geometry(view, &geo_box);
 	view->x = new_left - geo_box.x;
 	view->y = new_top - geo_box.y;
 
@@ -185,7 +185,7 @@ cursor_button(struct wl_listener *listener, void *data)
 			server->grab_x = server->cursor->x - view->x;
 			server->grab_y = server->cursor->y - view->y;
 
-			wlr_xdg_surface_get_geometry(view->xdg_surface, &server->grab_geobox);
+			hopalong_view_get_geometry(view, &server->grab_geobox);
 			server->grab_geobox.x = view->x;
 			server->grab_geobox.y = view->y;
 
@@ -217,7 +217,7 @@ cursor_button(struct wl_listener *listener, void *data)
 			server->grab_x = 0;
 			server->grab_y = 0;
 
-			wlr_xdg_surface_get_geometry(view->xdg_surface, &server->grab_geobox);
+			hopalong_view_get_geometry(view, &server->grab_geobox);
 			server->grab_geobox.x = view->x;
 			server->grab_geobox.y = view->y;
 

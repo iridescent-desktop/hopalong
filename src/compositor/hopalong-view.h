@@ -60,6 +60,7 @@ struct hopalong_view_ops {
 	const char *(*getprop)(struct hopalong_view *view, enum hopalong_view_prop prop);
 	struct wlr_surface *(*get_surface)(struct hopalong_view *view);
 	void (*set_activated)(struct hopalong_view *view, bool activated);
+	bool (*get_geometry)(struct hopalong_view *view, struct wlr_box *box);
 };
 
 struct hopalong_view {
@@ -117,5 +118,6 @@ extern void hopalong_view_focus(struct hopalong_view *view, struct wlr_surface *
 extern void hopalong_view_destroy(struct hopalong_view *view);
 extern struct wlr_surface *hopalong_view_get_surface(struct hopalong_view *view);
 extern void hopalong_view_set_activated(struct hopalong_view *view, bool activated);
+extern bool hopalong_view_get_geometry(struct hopalong_view *view, struct wlr_box *box);
 
 #endif

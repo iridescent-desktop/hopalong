@@ -152,33 +152,6 @@ render_view_surface(struct hopalong_view *view, struct render_data *data)
 	wlr_log(WLR_ERROR, "render_view_surface: don't know how to render view %p", view);
 }
 
-static bool
-get_view_geometry(struct hopalong_view *view, struct wlr_box *box)
-{
-	if (view->xdg_surface != NULL)
-	{
-		wlr_xdg_surface_get_geometry(view->xdg_surface, box);
-		return true;
-	}
-
-	if (view->xwayland_surface != NULL)
-	{
-		struct wlr_surface *surface = hopalong_view_get_surface(view);
-		if (surface == NULL)
-			return false;
-
-		box->x = view->x;
-		box->y = view->y;
-
-		box->width = surface->current.width;
-		box->height = surface->current.height;
-		return true;
-	}
-
-	wlr_log(WLR_ERROR, "get_view_geometry: don't know how to get geometry for view %p", view);
-	return false;
-}
-
 static void
 render_container(struct hopalong_view *view, struct render_data *data)
 {
@@ -205,7 +178,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 
 	/* scratch geometry */
 	struct wlr_box box;
-	if (!get_view_geometry(view, &box))
+	if (!hopalong_view_get_geometry(view, &box))
 		return;
 
 	box.x = (ox - border_thickness);

@@ -369,3 +369,13 @@ hopalong_view_focus(struct hopalong_view *view, struct wlr_surface *surface)
 	view->frame_area = -1;
 	view->frame_area_edges = WLR_EDGE_NONE;
 }
+
+bool
+hopalong_view_get_geometry(struct hopalong_view *view, struct wlr_box *box)
+{
+	return_val_if_fail(view != NULL, false);
+	return_val_if_fail(view->ops != NULL, false);
+	return_val_if_fail(box != NULL, false);
+
+	return view->ops->get_geometry(view, box);
+}
