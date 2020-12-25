@@ -19,14 +19,14 @@ static void
 hopalong_xwayland_surface_map(struct wl_listener *listener, void *data)
 {
 	struct hopalong_view *view = wl_container_of(listener, view, map);
-	view->mapped = true;
+	hopalong_view_focus(view, view->xwayland_surface->surface);
 }
 
 static void
 hopalong_xwayland_surface_unmap(struct wl_listener *listener, void *data)
 {
 	struct hopalong_view *view = wl_container_of(listener, view, unmap);
-	view->mapped = false;
+	hopalong_view_unmap(view);
 }
 
 static void

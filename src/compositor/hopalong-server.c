@@ -81,6 +81,10 @@ hopalong_server_initialize(struct hopalong_server *server)
 	server->new_output.notify = hopalong_server_new_output;
 	wl_signal_add(&server->backend->events.new_output, &server->new_output);
 
+	/* initialize view lists */
+	wl_list_init(&server->views);
+	wl_list_init(&server->mapped_views);
+
 	/* set up XDG shell */
 	hopalong_xdg_shell_setup(server);
 

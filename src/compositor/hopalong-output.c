@@ -344,11 +344,8 @@ hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 
 	/* render the views */
 	struct hopalong_view *view;
-	wl_list_for_each_reverse(view, &output->server->views, link)
+	wl_list_for_each_reverse(view, &output->server->mapped_views, mapped_link)
 	{
-		if (!view->mapped)
-			continue;
-
 		struct render_data rdata = {
 			.output = output->wlr_output,
 			.view = view,

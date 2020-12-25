@@ -54,7 +54,9 @@ struct hopalong_server {
 
 	struct wlr_xdg_shell *xdg_shell;
 	struct wl_listener new_xdg_surface;
+
 	struct wl_list views;
+	struct wl_list mapped_views;
 
 	struct wlr_cursor *cursor;
 	struct wlr_xcursor_manager *cursor_mgr;

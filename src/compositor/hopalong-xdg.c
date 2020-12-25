@@ -113,7 +113,6 @@ hopalong_xdg_surface_map(struct wl_listener *listener, void *data)
 	return_if_fail(listener != NULL);
 
 	struct hopalong_view *view = wl_container_of(listener, view, map);
-	view->mapped = true;
 
 	hopalong_view_focus(view, view->xdg_surface->surface);
 }
@@ -124,7 +123,7 @@ hopalong_xdg_surface_unmap(struct wl_listener *listener, void *data)
 	return_if_fail(listener != NULL);
 
 	struct hopalong_view *view = wl_container_of(listener, view, unmap);
-	view->mapped = false;
+	hopalong_view_unmap(view);
 }
 
 static void
@@ -330,8 +329,6 @@ void
 hopalong_xdg_shell_setup(struct hopalong_server *server)
 {
 	return_if_fail(server != NULL);
-
-	wl_list_init(&server->views);
 
 	server->xdg_shell = wlr_xdg_shell_create(server->display);
 	return_if_fail(server->xdg_shell);

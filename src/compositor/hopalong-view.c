@@ -291,6 +291,7 @@ hopalong_view_destroy(struct hopalong_view *view)
 	return_if_fail(view != NULL);
 
 	wl_list_remove(&view->link);
+	wl_list_remove(&view->mapped_link);
 
 	if (view->title != NULL)
 	{
@@ -364,9 +365,7 @@ hopalong_view_focus(struct hopalong_view *view, struct wlr_surface *surface)
 		wlr_seat_keyboard_notify_enter(seat, surface,
 			keyboard->keycodes, keyboard->num_keycodes, &keyboard->modifiers);
 
-	wl_list_remove(&view->link);
-	wl_list_insert(&server->views, &view->link);
-	hopalong_view_set_activated(view, true);
+	hopalong_view_reparent(view);
 
 	view->frame_area = -1;
 	view->frame_area_edges = WLR_EDGE_NONE;
@@ -389,4 +388,39 @@ hopalong_view_set_size(struct hopalong_view *view, int new_width, int new_height
 	return_if_fail(view->ops != NULL);
 
 	return view->ops->set_size(view, new_width, new_height);
+}
+
+void
+hopalong_view_map(struct hopalong_view *view)
+{
+	return_if_fail(view != NULL);
+
+	struct hopalong_server *server = view->server;
+	return_if_fail(server != NULL);
+
+	view->mapped = true;
+
+	wl_list_insert(&server->mapped_views, &view->mapped_link);
+	hopalong_view_set_activated(view, true);
+}
+
+void
+hopalong_view_unmap(struct hopalong_view *view)
+{
+	return_if_fail(view != NULL);
+
+	view->mapped = false;
+
+	wl_list_remove(&view->mapped_link);
+}
+
+void
+hopalong_view_reparent(struct hopalong_view *view)
+{
+	return_if_fail(view != NULL);
+
+	if (view->mapped)
+		hopalong_view_unmap(view);
+
+	hopalong_view_map(view);
 }
