@@ -173,8 +173,8 @@ render_container(struct hopalong_view *view, struct render_data *data)
 	/* translate to output-local coordinates */
 	double ox = 0, oy = 0;
 	wlr_output_layout_output_coords(view->server->output_layout, output, &ox, &oy);
-	ox += view->x + 0;
-	oy += view->y + 0;
+	ox += view->x;
+	oy += view->y + 1;
 
 	/* scratch geometry */
 	struct wlr_box box;
@@ -184,7 +184,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 	box.x = (ox - style->border_thickness);
 	box.y = (oy - style->border_thickness);
 	box.width = (box.width + (style->border_thickness * 2));
-	box.height = (box.height + (style->border_thickness * 2));
+	box.height = (box.height + (style->border_thickness * 2)) - 1;
 
 	/* copy scratch to base_box */
 	struct wlr_box base_box = {
@@ -194,7 +194,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 		.height = box.height,
 	};
 
-	int title_bar_offset = style->title_bar_height + style->border_thickness;
+	int title_bar_offset = (view->hide_title_bar ? 0 : style->title_bar_height) + style->border_thickness;
 
 	/* render borders, starting with top */
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TOP] = (struct wlr_box){
@@ -239,6 +239,9 @@ render_container(struct hopalong_view *view, struct render_data *data)
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT].width += BORDER_HITBOX_THICKNESS;
 
 	/* title bar */
+	if (view->hide_title_bar)
+		goto skip_title_bar;
+
 	bool activated = view->activated;
 
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_TITLEBAR] = (struct wlr_box){
@@ -294,6 +297,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 	render_texture(output, &view->frame_areas[HOPALONG_VIEW_FRAME_AREA_MINIMIZE],
 		activated ? rdata->textures->minimize : rdata->textures->minimize_inactive, output->scale);
 
+skip_title_bar:
 	/* render the surface itself */
 	render_view_surface(view, data);
 }

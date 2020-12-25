@@ -99,6 +99,7 @@ struct hopalong_view {
 	/* client-side decorations */
 	bool using_csd;
 	bool activated;
+	bool hide_title_bar;
 };
 
 struct hopalong_generated_textures {
