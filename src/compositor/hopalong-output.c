@@ -133,15 +133,13 @@ render_rect(struct wlr_output *output, struct wlr_box *box, float color[4])
 #define BORDER_HITBOX_THICKNESS		(4)
 
 static void
-render_container(struct wlr_xdg_surface *xdg_surface, struct render_data *data)
+render_container(struct hopalong_view *view, struct render_data *data)
 {
+	struct wlr_xdg_surface *xdg_surface = view->xdg_surface;
 	return_if_fail(xdg_surface != NULL);
 
 	struct render_data *rdata = data;
 	return_if_fail(rdata != NULL);
-
-	struct hopalong_view *view = rdata->view;
-	return_if_fail(view != NULL);
 
 	struct wlr_output *output = rdata->output;
 	return_if_fail(output != NULL);
@@ -341,7 +339,7 @@ hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 			.textures = output->generated_textures,
 		};
 
-		render_container(view->xdg_surface, &rdata);
+		render_container(view, &rdata);
 	}
 
 	/* renderer our cursor if we need to */
