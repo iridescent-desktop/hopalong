@@ -39,6 +39,7 @@
 #include "hopalong-macros.h"
 #include "hopalong-view.h"
 #include "hopalong-xwayland.h"
+#include "hopalong-style.h"
 
 enum hopalong_cursor_mode {
 	HOPALONG_CURSOR_PASSTHROUGH,
@@ -89,6 +90,8 @@ struct hopalong_server {
 
 	struct wlr_xwayland *wlr_xwayland;
 	struct wl_listener new_xwayland_surface;
+
+	const struct hopalong_style *style;
 };
 
 extern struct hopalong_server *hopalong_server_new(void);

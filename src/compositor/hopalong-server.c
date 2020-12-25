@@ -100,6 +100,9 @@ hopalong_server_initialize(struct hopalong_server *server)
 	/* set up screenshotting */
 	wlr_screencopy_manager_v1_create(server->display);
 
+	/* set up style */
+	server->style = hopalong_style_get_default();
+
 	return true;
 }
 
