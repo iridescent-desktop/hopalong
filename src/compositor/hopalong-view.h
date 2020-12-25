@@ -108,5 +108,6 @@ extern void hopalong_view_minimize(struct hopalong_view *view);
 extern void hopalong_view_maximize(struct hopalong_view *view);
 extern void hopalong_view_close(struct hopalong_view *view);
 extern const char *hopalong_view_getprop(struct hopalong_view *view, enum hopalong_view_prop prop);
+extern void hopalong_view_destroy(struct hopalong_view *view);
 
 #endif

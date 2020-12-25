@@ -284,3 +284,19 @@ hopalong_view_getprop(struct hopalong_view *view, enum hopalong_view_prop prop)
 
 	return view->ops->getprop(view, prop);
 }
+
+void
+hopalong_view_destroy(struct hopalong_view *view)
+{
+	return_if_fail(view != NULL);
+
+	wl_list_remove(&view->link);
+
+	if (view->title != NULL)
+	{
+		wlr_texture_destroy(view->title);
+		wlr_texture_destroy(view->title_inactive);
+	}
+
+	free(view);
+}

@@ -142,15 +142,7 @@ hopalong_xdg_surface_destroy(struct wl_listener *listener, void *data)
 	return_if_fail(listener != NULL);
 
 	struct hopalong_view *view = wl_container_of(listener, view, destroy);
-	wl_list_remove(&view->link);
-
-	if (view->title)
-	{
-		wlr_texture_destroy(view->title);
-		wlr_texture_destroy(view->title_inactive);
-	}
-
-	free(view);
+	hopalong_view_destroy(view);
 }
 
 static void
