@@ -353,18 +353,20 @@ hopalong_view_focus(struct hopalong_view *view, struct wlr_surface *surface)
 	{
 		struct hopalong_view *prev_view = hopalong_view_from_wlr_surface(server, prev_surface);
 
-		hopalong_view_set_activated(prev_view, false);
-//		wlr_xdg_toplevel_set_activated(previous, false);
+		if (prev_view != NULL)
+			hopalong_view_set_activated(prev_view, false);
 	}
 
 	struct wlr_keyboard *keyboard = wlr_seat_get_keyboard(seat);
-	wlr_seat_keyboard_notify_enter(seat, hopalong_view_get_surface(view),
-		keyboard->keycodes, keyboard->num_keycodes, &keyboard->modifiers);
+
+	surface = hopalong_view_get_surface(view);
+	if (surface != NULL)
+		wlr_seat_keyboard_notify_enter(seat, surface,
+			keyboard->keycodes, keyboard->num_keycodes, &keyboard->modifiers);
 
 	wl_list_remove(&view->link);
 	wl_list_insert(&server->views, &view->link);
 	hopalong_view_set_activated(view, true);
-//	wlr_xdg_toplevel_set_activated(view->xdg_surface, true);
 
 	view->frame_area = -1;
 	view->frame_area_edges = WLR_EDGE_NONE;
