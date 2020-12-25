@@ -90,6 +90,8 @@ main(int argc, char *argv[], const char *envp[])
 		{NULL,		0,	     0, 0 },
 	};
 
+	static struct hopalong_server_options opts = {};
+
 	for (;;)
 	{
 		int c = getopt_long(argc, argv, "Vhd", long_options, NULL);
@@ -118,7 +120,7 @@ main(int argc, char *argv[], const char *envp[])
 	}
 
 	wlr_log_init(log_level, NULL);
-	struct hopalong_server *server = hopalong_server_new();
+	struct hopalong_server *server = hopalong_server_new(&opts);
 
 	if (server == NULL)
 	{

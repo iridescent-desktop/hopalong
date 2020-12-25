@@ -51,7 +51,7 @@ hopalong_server_new_output(struct wl_listener *listener, void *data)
 }
 
 static bool
-hopalong_server_initialize(struct hopalong_server *server)
+hopalong_server_initialize(struct hopalong_server *server, const struct hopalong_server_options *options)
 {
 	return_val_if_fail(server != NULL, false);
 
@@ -110,11 +110,11 @@ hopalong_server_initialize(struct hopalong_server *server)
  * Initialize the Hopalong server.
  */
 struct hopalong_server *
-hopalong_server_new(void)
+hopalong_server_new(const struct hopalong_server_options *options)
 {
 	struct hopalong_server *server = calloc(1, sizeof(*server));
 
-	if (!hopalong_server_initialize(server))
+	if (!hopalong_server_initialize(server, options))
 	{
 		hopalong_server_destroy(server);
 		return NULL;

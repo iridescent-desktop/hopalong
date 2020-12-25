@@ -94,7 +94,11 @@ struct hopalong_server {
 	const struct hopalong_style *style;
 };
 
-extern struct hopalong_server *hopalong_server_new(void);
+struct hopalong_server_options {
+	const char *style_name;
+};
+
+extern struct hopalong_server *hopalong_server_new(const struct hopalong_server_options *options);
 extern bool hopalong_server_run(struct hopalong_server *server);
 extern void hopalong_server_destroy(struct hopalong_server *server);
 extern const char *hopalong_server_add_socket(struct hopalong_server *server);
