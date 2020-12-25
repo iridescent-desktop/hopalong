@@ -21,7 +21,7 @@
 
 
 static void
-launch_session_leader(const char **envp, const char *socket, char *program)
+launch_session_leader(const char **envp, const char *socket, const char *display, char *program)
 {
 	char **sockenvp = NULL;
 
@@ -32,6 +32,12 @@ launch_session_leader(const char **envp, const char *socket, char *program)
 	}
 
 	if (!hopalong_environment_push(&sockenvp, "WAYLAND_DISPLAY", socket))
+	{
+		wlr_log(WLR_ERROR, "hopalong_environment_push failed while launching session leader");
+		return;
+	}
+
+	if (display != NULL && !hopalong_environment_push(&sockenvp, "DISPLAY", display))
 	{
 		wlr_log(WLR_ERROR, "hopalong_environment_push failed while launching session leader");
 		return;
@@ -130,11 +136,11 @@ main(int argc, char *argv[], const char *envp[])
 	wlr_log(WLR_INFO, "Listening for Wayland clients at: %s", socket);
 
 	if (optind < argc)
-		launch_session_leader(envp, socket, argv[optind]);
+		launch_session_leader(envp, socket, server->wlr_xwayland->display_name, argv[optind]);
 	else
 	{
 		wlr_log(WLR_INFO, "Using $HOME/.hopalong_init for session leader");
-		launch_session_leader(envp, socket, "sh ~/.hopalong_init");
+		launch_session_leader(envp, socket, server->wlr_xwayland->display_name, "sh ~/.hopalong_init");
 	}
 
 	if (!hopalong_server_run(server))

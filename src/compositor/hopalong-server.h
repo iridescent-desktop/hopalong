@@ -32,11 +32,13 @@
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_shell.h>
+#include <wlr/xwayland.h>
 #include <wlr/util/log.h>
 #include <xkbcommon/xkbcommon.h>
 
 #include "hopalong-macros.h"
 #include "hopalong-view.h"
+#include "hopalong-xwayland.h"
 
 enum hopalong_cursor_mode {
 	HOPALONG_CURSOR_PASSTHROUGH,
@@ -82,6 +84,9 @@ struct hopalong_server {
 	struct wl_listener new_toplevel_decoration;
 
 	struct wlr_server_decoration_manager *wlr_deco_mgr;
+
+	struct wlr_xwayland *wlr_xwayland;
+	struct wl_listener new_xwayland_surface;
 };
 
 extern struct hopalong_server *hopalong_server_new(void);

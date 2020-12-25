@@ -300,3 +300,12 @@ hopalong_view_destroy(struct hopalong_view *view)
 
 	free(view);
 }
+
+struct wlr_surface *
+hopalong_view_get_surface(struct hopalong_view *view)
+{
+	return_val_if_fail(view != NULL, NULL);
+	return_val_if_fail(view->ops != NULL, NULL);
+
+	return view->ops->get_surface(view);
+}

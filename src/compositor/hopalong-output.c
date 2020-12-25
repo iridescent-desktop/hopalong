@@ -141,6 +141,14 @@ render_view_surface(struct hopalong_view *view, struct render_data *data)
 		return;
 	}
 
+	if (view->xwayland_surface != NULL)
+	{
+		struct wlr_surface *surface = hopalong_view_get_surface(view);
+
+		render_surface(surface, 0, 0, data);
+		return;
+	}
+
 	wlr_log(WLR_ERROR, "render_view_surface: don't know how to render view %p", view);
 }
 
@@ -150,6 +158,20 @@ get_view_geometry(struct hopalong_view *view, struct wlr_box *box)
 	if (view->xdg_surface != NULL)
 	{
 		wlr_xdg_surface_get_geometry(view->xdg_surface, box);
+		return true;
+	}
+
+	if (view->xwayland_surface != NULL)
+	{
+		struct wlr_surface *surface = hopalong_view_get_surface(view);
+		if (surface == NULL)
+			return false;
+
+		box->x = view->x;
+		box->y = view->y;
+
+		box->width = surface->current.width;
+		box->height = surface->current.height;
 		return true;
 	}
 
@@ -163,6 +185,9 @@ view_is_activated(struct hopalong_view *view)
 	/* XXX: we should track activation status ourselves in a shell-independent way */
 	if (view->xdg_surface != NULL && view->xdg_surface->toplevel != NULL)
 		return view->xdg_surface->toplevel->current.activated;
+
+	if (view->xwayland_surface != NULL)
+		return true;
 
 	wlr_log(WLR_ERROR, "view_is_activated: don't know activation state for view %p", view);
 	return false;

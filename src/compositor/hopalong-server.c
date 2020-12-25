@@ -17,6 +17,7 @@
 #include "hopalong-xdg.h"
 #include "hopalong-cursor.h"
 #include "hopalong-seat.h"
+#include "hopalong-xwayland.h"
 
 static void
 hopalong_server_new_output(struct wl_listener *listener, void *data)
@@ -83,6 +84,9 @@ hopalong_server_initialize(struct hopalong_server *server)
 	/* set up XDG shell */
 	hopalong_xdg_shell_setup(server);
 
+	/* set up XWayland shell */
+	hopalong_xwayland_shell_setup(server);
+
 	/* set up cursor */
 	hopalong_cursor_setup(server);
 
@@ -140,6 +144,7 @@ hopalong_server_destroy(struct hopalong_server *server)
 
 	hopalong_seat_teardown(server);
 	hopalong_cursor_teardown(server);
+	hopalong_xwayland_shell_teardown(server);
 	hopalong_xdg_shell_teardown(server);
 
 	if (server->output_layout)

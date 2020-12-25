@@ -58,6 +58,7 @@ struct hopalong_view_ops {
 	void (*maximize)(struct hopalong_view *view);
 	void (*close)(struct hopalong_view *view);
 	const char *(*getprop)(struct hopalong_view *view, enum hopalong_view_prop prop);
+	struct wlr_surface *(*get_surface)(struct hopalong_view *view);
 };
 
 struct hopalong_view {
@@ -65,9 +66,11 @@ struct hopalong_view {
 	struct hopalong_server *server;
 	const struct hopalong_view_ops *ops;
 	struct wlr_xdg_surface *xdg_surface;
+	struct wlr_xwayland_surface *xwayland_surface;
 	struct wl_listener map;
 	struct wl_listener unmap;
 	struct wl_listener destroy;
+	struct wl_listener request_configure;
 	struct wl_listener request_move;
 	struct wl_listener request_resize;
 	struct wl_listener set_title;
@@ -109,5 +112,6 @@ extern void hopalong_view_maximize(struct hopalong_view *view);
 extern void hopalong_view_close(struct hopalong_view *view);
 extern const char *hopalong_view_getprop(struct hopalong_view *view, enum hopalong_view_prop prop);
 extern void hopalong_view_destroy(struct hopalong_view *view);
+extern struct wlr_surface *hopalong_view_get_surface(struct hopalong_view *view);
 
 #endif

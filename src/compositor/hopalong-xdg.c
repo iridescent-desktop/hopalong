@@ -32,6 +32,9 @@ hopalong_xdg_view_at(struct hopalong_view *view,
 
 	double _sx, _sy;
 	struct wlr_surface *_surface = NULL;
+	if (view->xdg_surface == NULL)
+		return false;
+
 	_surface = wlr_xdg_surface_surface_at(view->xdg_surface, view_sx, view_sy, &_sx, &_sy);
 
 	if (_surface != NULL)
@@ -249,11 +252,18 @@ hopalong_xdg_toplevel_getprop(struct hopalong_view *view, enum hopalong_view_pro
 	return NULL;
 }
 
+static struct wlr_surface *
+hopalong_xdg_toplevel_get_surface(struct hopalong_view *view)
+{
+	return view->xdg_surface->surface;
+}
+
 static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 	.minimize = hopalong_xdg_toplevel_minimize,
 	.maximize = hopalong_xdg_toplevel_maximize,
 	.close = hopalong_xdg_toplevel_close,
 	.getprop = hopalong_xdg_toplevel_getprop,
+	.get_surface = hopalong_xdg_toplevel_get_surface,
 };
 
 static void
