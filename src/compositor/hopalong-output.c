@@ -179,20 +179,6 @@ get_view_geometry(struct hopalong_view *view, struct wlr_box *box)
 	return false;
 }
 
-static bool
-view_is_activated(struct hopalong_view *view)
-{
-	/* XXX: we should track activation status ourselves in a shell-independent way */
-	if (view->xdg_surface != NULL && view->xdg_surface->toplevel != NULL)
-		return view->xdg_surface->toplevel->current.activated;
-
-	if (view->xwayland_surface != NULL)
-		return true;
-
-	wlr_log(WLR_ERROR, "view_is_activated: don't know activation state for view %p", view);
-	return false;
-}
-
 static void
 render_container(struct hopalong_view *view, struct render_data *data)
 {
@@ -281,7 +267,7 @@ render_container(struct hopalong_view *view, struct render_data *data)
 	view->frame_areas[HOPALONG_VIEW_FRAME_AREA_RIGHT].width += BORDER_HITBOX_THICKNESS;
 
 	/* title bar */
-	bool activated = view_is_activated(view);
+	bool activated = view->activated;
 
 	float title_bar_color[4] = {0.9, 0.9, 0.9, 1.0};
 	float title_bar_color_active[4] = {0.1, 0.1, 0.9, 1.0};
