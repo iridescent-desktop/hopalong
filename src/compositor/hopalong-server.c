@@ -68,7 +68,7 @@ hopalong_server_initialize(struct hopalong_server *server)
 
 	/* start hooking up wlroots stuff */
 	wlr_renderer_init_wl_display(server->renderer, server->display);
-	wlr_compositor_create(server->display, server->renderer);
+	server->compositor = wlr_compositor_create(server->display, server->renderer);
 	wlr_data_device_manager_create(server->display);
 
 	/* set up output layout manager */
