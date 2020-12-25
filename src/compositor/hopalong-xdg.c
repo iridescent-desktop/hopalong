@@ -32,10 +32,30 @@ hopalong_xdg_view_at(struct hopalong_view *view,
 
 	double _sx, _sy;
 	struct wlr_surface *_surface = NULL;
-	if (view->xdg_surface == NULL)
-		return false;
 
-	_surface = wlr_xdg_surface_surface_at(view->xdg_surface, view_sx, view_sy, &_sx, &_sy);
+	if (view->xwayland_surface != NULL)
+	{
+		_surface = hopalong_view_get_surface(view);
+
+		if (_surface != NULL)
+		{
+			int w = _surface->current.width;
+			int h = _surface->current.height;
+
+			if (lx >= view->x && lx <= view->x + w &&
+			    ly >= view->y && ly <= view->y + h)
+			{
+				*sx = lx - view->x;
+				*sy = ly - view->y;
+				*surface = _surface;
+
+				return true;
+			}
+		}
+	}
+
+	if (view->xdg_surface != NULL)
+		_surface = wlr_xdg_surface_surface_at(view->xdg_surface, view_sx, view_sy, &_sx, &_sy);
 
 	if (_surface != NULL)
 	{

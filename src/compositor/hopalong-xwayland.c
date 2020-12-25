@@ -103,8 +103,8 @@ hopalong_xwayland_request_configure(struct wl_listener *listener, void *data)
 
 	wlr_xwayland_surface_configure(xsurface, ev->x, ev->y, ev->width, ev->height);
 
-	view->x = ev->x;
-	view->y = ev->y;
+	view->x = ev->x + 128;
+	view->y = ev->y + 128;
 
 	if (xsurface->surface != NULL)
 		hopalong_view_focus(view, xsurface->surface);
@@ -127,8 +127,6 @@ hopalong_xwayland_new_surface(struct wl_listener *listener, void *data)
 	view->xwayland_surface = xwayland_surface;
 	view->server = server;
 	view->ops = &hopalong_xwayland_view_ops;
-
-	view->x = view->y = 32;
 
 	view->map.notify = hopalong_xwayland_surface_map;
 	wl_signal_add(&xwayland_surface->events.map, &view->map);

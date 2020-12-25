@@ -163,6 +163,8 @@ cursor_button(struct wl_listener *listener, void *data)
 	struct wlr_surface *surface;
 	struct hopalong_view *view = hopalong_xdg_desktop_view_at(server, server->cursor->x, server->cursor->y, &surface, &sx, &sy);
 
+	wlr_log(WLR_INFO, "view %p, sx=%f sy=%f", view, sx, sy);
+
 	if (event->state == WLR_BUTTON_RELEASED)
 	{
 		server->cursor_mode = HOPALONG_CURSOR_PASSTHROUGH;
@@ -246,7 +248,7 @@ cursor_frame(struct wl_listener *listener, void *data)
 void
 hopalong_cursor_setup(struct hopalong_server *server)
 {
-	server->cursor = wlr_cursor_create();   
+	server->cursor = wlr_cursor_create();
 	wlr_cursor_attach_output_layout(server->cursor, server->output_layout);
 
 	server->cursor_mgr = wlr_xcursor_manager_create("breeze", 48);
