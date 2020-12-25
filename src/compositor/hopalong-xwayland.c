@@ -105,6 +105,9 @@ hopalong_xwayland_request_configure(struct wl_listener *listener, void *data)
 
 	view->x = ev->x;
 	view->y = ev->y;
+
+	if (xsurface->surface != NULL)
+		hopalong_view_focus(view, xsurface->surface);
 }
 
 static void

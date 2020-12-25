@@ -358,7 +358,7 @@ hopalong_view_focus(struct hopalong_view *view, struct wlr_surface *surface)
 	}
 
 	struct wlr_keyboard *keyboard = wlr_seat_get_keyboard(seat);
-	wlr_seat_keyboard_notify_enter(seat, view->xdg_surface->surface,
+	wlr_seat_keyboard_notify_enter(seat, hopalong_view_get_surface(view),
 		keyboard->keycodes, keyboard->num_keycodes, &keyboard->modifiers);
 
 	wl_list_remove(&view->link);

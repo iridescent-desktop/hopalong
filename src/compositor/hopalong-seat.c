@@ -44,7 +44,7 @@ handle_keybinding(struct hopalong_server *server, xkb_keysym_t sym)
 		struct hopalong_view *current_view = wl_container_of(server->views.next, current_view, link);
 		struct hopalong_view *next_view = wl_container_of(current_view->link.next, next_view, link);
 
-		hopalong_view_focus(next_view, next_view->xdg_surface->surface);
+		hopalong_view_focus(next_view, hopalong_view_get_surface(next_view));
 
 		/* Move the previous view to the end of the list */
 		wl_list_remove(&current_view->link);
