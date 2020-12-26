@@ -38,6 +38,20 @@ struct hopalong_output;
 struct hopalong_server;
 struct hopalong_view;
 
+/*
+ * Hopalong has five layers, mediated by the wlr-layer-shell, xdg-shell and
+ * xwayland-shell protocols.  xdg-shell and xwayland-shell surfaces are always
+ * placed in the HOPALONG_LAYER_MIDDLE layer.
+ */
+enum hopalong_layer {
+	HOPALONG_LAYER_BACKGROUND,
+	HOPALONG_LAYER_BOTTOM,
+	HOPALONG_LAYER_MIDDLE,
+	HOPALONG_LAYER_TOP,
+	HOPALONG_LAYER_OVERLAY,
+	HOPALONG_LAYER_COUNT
+};
+
 enum hopalong_view_frame_area {
 	HOPALONG_VIEW_FRAME_AREA_TOP,
 	HOPALONG_VIEW_FRAME_AREA_BOTTOM,
@@ -69,6 +83,8 @@ struct hopalong_view_ops {
 struct hopalong_view {
 	struct wl_list link;
 	struct wl_list mapped_link;
+
+	enum hopalong_layer layer;
 
 	struct hopalong_server *server;
 	const struct hopalong_view_ops *ops;

@@ -291,6 +291,7 @@ hopalong_xdg_new_surface(struct wl_listener *listener, void *data)
 	view->server = server;
 	view->xdg_surface = xdg_surface;
 	view->ops = &hopalong_xdg_view_ops;
+	view->layer = HOPALONG_LAYER_MIDDLE;
 
 	view->x = view->y = 64;
 

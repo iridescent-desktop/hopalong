@@ -83,7 +83,10 @@ hopalong_server_initialize(struct hopalong_server *server, const struct hopalong
 
 	/* initialize view lists */
 	wl_list_init(&server->views);
-	wl_list_init(&server->mapped_views);
+
+	/* initialize the layers */
+	for (size_t i = 0; i < HOPALONG_LAYER_COUNT; i++)
+		wl_list_init(&server->mapped_layers[i]);
 
 	/* set up XDG shell */
 	hopalong_xdg_shell_setup(server);

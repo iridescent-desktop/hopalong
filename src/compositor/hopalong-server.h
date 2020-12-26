@@ -57,7 +57,7 @@ struct hopalong_server {
 	struct wl_listener new_xdg_surface;
 
 	struct wl_list views;
-	struct wl_list mapped_views;
+	struct wl_list mapped_layers[HOPALONG_LAYER_COUNT];
 
 	struct wlr_cursor *cursor;
 	struct wlr_xcursor_manager *cursor_mgr;

@@ -157,6 +157,7 @@ hopalong_xwayland_new_surface(struct wl_listener *listener, void *data)
 	view->xwayland_surface = xwayland_surface;
 	view->server = server;
 	view->ops = &hopalong_xwayland_view_ops;
+	view->layer = HOPALONG_LAYER_MIDDLE;
 
 	view->map.notify = hopalong_xwayland_surface_map;
 	wl_signal_add(&xwayland_surface->events.map, &view->map);

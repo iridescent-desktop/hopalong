@@ -400,7 +400,7 @@ hopalong_view_map(struct hopalong_view *view)
 
 	view->mapped = true;
 
-	wl_list_insert(&server->mapped_views, &view->mapped_link);
+	wl_list_insert(&server->mapped_layers[view->layer], &view->mapped_link);
 	hopalong_view_set_activated(view, true);
 }
 

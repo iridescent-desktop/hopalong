@@ -345,18 +345,22 @@ hopalong_output_frame_notify(struct wl_listener *listener, void *data)
 	wlr_renderer_clear(renderer, style->base_bg);
 
 	/* render the views */
-	struct hopalong_view *view;
-	wl_list_for_each_reverse(view, &output->server->mapped_views, mapped_link)
+	for (size_t i = 0; i < HOPALONG_LAYER_COUNT; i++)
 	{
-		struct render_data rdata = {
-			.output = output->wlr_output,
-			.view = view,
-			.renderer = renderer,
-			.when = &now,
-			.textures = output->generated_textures,
-		};
+		struct hopalong_view *view;
 
-		render_container(view, &rdata);
+		wl_list_for_each_reverse(view, &output->server->mapped_layers[i], mapped_link)
+		{
+			struct render_data rdata = {
+				.output = output->wlr_output,
+				.view = view,
+				.renderer = renderer,
+				.when = &now,
+				.textures = output->generated_textures,
+			};
+
+			render_container(view, &rdata);
+		}
 	}
 
 	/* renderer our cursor if we need to */
