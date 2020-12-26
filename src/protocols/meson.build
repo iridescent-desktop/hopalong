@@ -15,10 +15,12 @@ endif
 
 protocols = [
 	[wl_protocol_dir, 'stable/xdg-shell/xdg-shell.xml'],
+	['wlr-layer-shell-unstable-v1.xml'],
 ]
 
 client_protocols = [
 	[wl_protocol_dir, 'stable/xdg-shell/xdg-shell.xml'],
+	['wlr-layer-shell-unstable-v1.xml'],
 ]
 
 wl_protos_src = []
