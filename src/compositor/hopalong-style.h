@@ -45,5 +45,6 @@ struct hopalong_style {
 };
 
 extern const struct hopalong_style *hopalong_style_get_default(void);
+extern const struct hopalong_style *hopalong_style_load(const char *style_name);
 
 #endif

@@ -87,6 +87,7 @@ main(int argc, char *argv[], const char *envp[])
 		{"version",	no_argument, 0, 'V'},
 		{"help",	no_argument, 0, 'h'},
 		{"debug",	no_argument, 0, 'd'},
+		{"style-name",	required_argument, 0, 's'},
 		{NULL,		0,	     0, 0 },
 	};
 
@@ -94,7 +95,7 @@ main(int argc, char *argv[], const char *envp[])
 
 	for (;;)
 	{
-		int c = getopt_long(argc, argv, "Vhd", long_options, NULL);
+		int c = getopt_long(argc, argv, "Vhds:", long_options, NULL);
 
 		if (c == -1)
 			break;
@@ -111,6 +112,10 @@ main(int argc, char *argv[], const char *envp[])
 
 		case 'd':
 			log_level = WLR_DEBUG;
+			break;
+
+		case 's':
+			opts.style_name = optarg;
 			break;
 
 		default:
@@ -132,7 +137,7 @@ main(int argc, char *argv[], const char *envp[])
 	if (socket == NULL)
 	{
 		fprintf(stderr, "Failed to open socket for Wayland clients.\n");
-		return EXIT_FAILURE;	
+		return EXIT_FAILURE;
 	}
 
 	wlr_log(WLR_INFO, "Listening for Wayland clients at: %s", socket);

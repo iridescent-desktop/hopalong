@@ -101,7 +101,10 @@ hopalong_server_initialize(struct hopalong_server *server, const struct hopalong
 	wlr_screencopy_manager_v1_create(server->display);
 
 	/* set up style */
-	server->style = hopalong_style_get_default();
+	if (options->style_name != NULL)
+		server->style = hopalong_style_load(options->style_name);
+	else
+		server->style = hopalong_style_get_default();
 
 	return true;
 }
