@@ -78,6 +78,7 @@ struct hopalong_view_ops {
 	void (*set_activated)(struct hopalong_view *view, bool activated);
 	bool (*get_geometry)(struct hopalong_view *view, struct wlr_box *box);
 	void (*set_size)(struct hopalong_view *view, int width, int height);
+	struct wlr_surface *(*surface_at)(struct hopalong_view *view, double x, double y, double *sx, double *sy);
 };
 
 struct hopalong_view {
@@ -145,5 +146,6 @@ extern void hopalong_view_set_size(struct hopalong_view *view, int new_width, in
 extern void hopalong_view_map(struct hopalong_view *view);
 extern void hopalong_view_unmap(struct hopalong_view *view);
 extern void hopalong_view_reparent(struct hopalong_view *view);
+extern struct wlr_surface *hopalong_view_surface_at(struct hopalong_view *view, double x, double y, double *sx, double *sy);
 
 #endif

@@ -27,45 +27,13 @@ bool
 hopalong_xdg_view_at(struct hopalong_view *view,
 	double lx, double ly, struct wlr_surface **surface, double *sx, double *sy)
 {
-	double view_sx = lx - view->x;
-	double view_sy = ly - view->y;
-
 	double _sx, _sy;
-	struct wlr_surface *_surface = NULL;
+	struct wlr_surface *_surface = hopalong_view_surface_at(view, lx, ly, &_sx, &_sy);
 
-	if (view->xwayland_surface != NULL)
+	if (_surface != NULL)
 	{
-		_surface = hopalong_view_get_surface(view);
-
-		if (_surface != NULL)
-		{
-			int w = _surface->current.width;
-			int h = _surface->current.height;
-
-			if (lx >= view->x && lx <= view->x + w &&
-			    ly >= view->y && ly <= view->y + h)
-			{
-				*sx = lx - view->x;
-				*sy = ly - view->y;
-				*surface = _surface;
-
-				return true;
-			}
-		}
-	}
-
-	if (view->xdg_surface != NULL)
-	{
-		_surface = wlr_xdg_surface_surface_at(view->xdg_surface, view_sx, view_sy, &_sx, &_sy);
-
-		if (_surface != NULL)
-		{
-			*sx = _sx;
-			*sy = _sy;
-			*surface = _surface;
-
-			return true;
-		}
+		*surface = _surface;
+		return true;
 	}
 
 	/* check for frame areas */
@@ -267,6 +235,24 @@ hopalong_xdg_toplevel_set_size(struct hopalong_view *view, int width, int height
 	wlr_xdg_toplevel_set_size(view->xdg_surface, width, height);
 }
 
+static struct wlr_surface *
+hopalong_xdg_toplevel_surface_at(struct hopalong_view *view, double x, double y, double *sx, double *sy)
+{
+	double view_sx = x - view->x;
+	double view_sy = y - view->y;
+
+	double _sx = 0.0, _sy = 0.0;
+	struct wlr_surface *surface = wlr_xdg_surface_surface_at(view->xdg_surface, view_sx, view_sy, &_sx, &_sy);
+
+	if (surface != NULL)
+	{
+		*sx = _sx;
+		*sy = _sy;
+	}
+
+	return surface;
+}
+
 static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 	.minimize = hopalong_xdg_toplevel_minimize,
 	.maximize = hopalong_xdg_toplevel_maximize,
@@ -276,6 +262,7 @@ static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 	.set_activated = hopalong_xdg_toplevel_set_activated,
 	.get_geometry = hopalong_xdg_toplevel_get_geometry,
 	.set_size = hopalong_xdg_toplevel_set_size,
+	.surface_at = hopalong_xdg_toplevel_surface_at,
 };
 
 static void

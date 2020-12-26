@@ -424,3 +424,12 @@ hopalong_view_reparent(struct hopalong_view *view)
 
 	hopalong_view_map(view);
 }
+
+struct wlr_surface *
+hopalong_view_surface_at(struct hopalong_view *view, double x, double y, double *sx, double *sy)
+{
+	return_val_if_fail(view != NULL, NULL);
+	return_val_if_fail(view->ops != NULL, NULL);
+
+	return view->ops->surface_at(view, x, y, sx, sy);
+}
