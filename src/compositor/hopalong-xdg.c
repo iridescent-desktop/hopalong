@@ -98,10 +98,13 @@ hopalong_xdg_desktop_view_at(struct hopalong_server *server, double lx, double l
 {
 	struct hopalong_view *view;
 
-	wl_list_for_each(view, &server->views, link)
+	for (size_t i = 0; i < HOPALONG_LAYER_COUNT; i++)
 	{
-		if (hopalong_xdg_view_at(view, lx, ly, surface, sx, sy))
-			return view;
+		wl_list_for_each(view, &server->mapped_layers[i], mapped_link)
+		{
+			if (hopalong_xdg_view_at(view, lx, ly, surface, sx, sy))
+				return view;
+		}
 	}
 
 	return NULL;
