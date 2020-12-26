@@ -16,68 +16,6 @@
 #include "hopalong-server.h"
 #include "hopalong-decoration.h"
 
-static const int resize_edges[] = {
-	WLR_EDGE_TOP,
-	WLR_EDGE_BOTTOM,
-	WLR_EDGE_LEFT,
-	WLR_EDGE_RIGHT,
-};
-
-bool
-hopalong_xdg_view_at(struct hopalong_view *view,
-	double lx, double ly, struct wlr_surface **surface, double *sx, double *sy)
-{
-	double _sx, _sy;
-	struct wlr_surface *_surface = hopalong_view_surface_at(view, lx, ly, &_sx, &_sy);
-
-	if (_surface != NULL)
-	{
-		*surface = _surface;
-		return true;
-	}
-
-	/* check for frame areas */
-	view->frame_area = -1;
-	view->frame_area_edges = WLR_EDGE_NONE;
-
-	for (size_t i = 0; i < HOPALONG_VIEW_FRAME_AREA_COUNT; i++)
-	{
-		struct wlr_box *box = &view->frame_areas[i];
-
-		if (!box->width && !box->height)
-			continue;
-
-		if (lx >= box->x && lx <= box->x + box->width &&
-		    ly >= box->y && ly <= box->y + box->height)
-		{
-			view->frame_area = i;
-
-			if (i < HOPALONG_VIEW_FRAME_AREA_TITLEBAR)
-				view->frame_area_edges |= resize_edges[i];
-		}
-	}
-
-	return view->frame_area != -1;
-}
-
-struct hopalong_view *
-hopalong_xdg_desktop_view_at(struct hopalong_server *server, double lx, double ly,
-	struct wlr_surface **surface, double *sx, double *sy)
-{
-	struct hopalong_view *view;
-
-	for (size_t i = 0; i < HOPALONG_LAYER_COUNT; i++)
-	{
-		wl_list_for_each(view, &server->mapped_layers[i], mapped_link)
-		{
-			if (hopalong_xdg_view_at(view, lx, ly, surface, sx, sy))
-				return view;
-		}
-	}
-
-	return NULL;
-}
-
 static void
 hopalong_xdg_surface_map(struct wl_listener *listener, void *data)
 {

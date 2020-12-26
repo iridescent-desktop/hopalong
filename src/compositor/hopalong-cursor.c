@@ -13,7 +13,7 @@
 
 #include "hopalong-cursor.h"
 #include "hopalong-server.h"
-#include "hopalong-xdg.h"
+#include "hopalong-shell.h"
 
 static const char * cursor_images[HOPALONG_VIEW_FRAME_AREA_COUNT] = {
 	[HOPALONG_VIEW_FRAME_AREA_TOP]		= "top_side",
@@ -105,7 +105,7 @@ process_cursor_motion(struct hopalong_server *server, uint32_t time)
 	double sx, sy;
 	struct wlr_seat *seat = server->seat;
 	struct wlr_surface *surface = NULL;
-	struct hopalong_view *view = hopalong_xdg_desktop_view_at(server,
+	struct hopalong_view *view = hopalong_shell_desktop_view_at(server,
 		server->cursor->x, server->cursor->y, &surface, &sx, &sy);
 
 	if (view == NULL || view->frame_area == -1 || surface != NULL)
@@ -161,7 +161,7 @@ cursor_button(struct wl_listener *listener, void *data)
 
 	double sx, sy;
 	struct wlr_surface *surface;
-	struct hopalong_view *view = hopalong_xdg_desktop_view_at(server, server->cursor->x, server->cursor->y, &surface, &sx, &sy);
+	struct hopalong_view *view = hopalong_shell_desktop_view_at(server, server->cursor->x, server->cursor->y, &surface, &sx, &sy);
 
 	if (event->state == WLR_BUTTON_RELEASED)
 	{

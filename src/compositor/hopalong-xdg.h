@@ -38,9 +38,5 @@ struct hopalong_view;
 
 extern void hopalong_xdg_shell_setup(struct hopalong_server *server);
 extern void hopalong_xdg_shell_teardown(struct hopalong_server *server);
-extern struct hopalong_view *hopalong_xdg_desktop_view_at(struct hopalong_server *server, double lx, double ly,
-	struct wlr_surface **surface, double *sx, double *sy);
-extern bool hopalong_xdg_view_at(struct hopalong_view *view,
-        double lx, double ly, struct wlr_surface **surface, double *sx, double *sy);
 
 #endif

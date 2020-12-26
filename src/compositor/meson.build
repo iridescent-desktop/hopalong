@@ -13,6 +13,7 @@ hopalong_sources = [
   'hopalong-environment.c',
   'hopalong-xwayland.c',
   'hopalong-style.c',
+  'hopalong-shell.c',
   'hopalong-main.c',
 ]
 
