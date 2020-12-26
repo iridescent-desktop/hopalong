@@ -142,5 +142,7 @@ hopalong_style_load(const char *style_name)
 
 	hopalong_style_load_string_value(kf, "TitleBarFont", &custom_style.title_bar_font);
 
+	g_key_file_free(kf);
+
 	return &custom_style;
 }
