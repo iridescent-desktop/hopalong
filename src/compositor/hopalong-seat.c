@@ -14,47 +14,7 @@
 #include <stdlib.h>
 #include "hopalong-seat.h"
 #include "hopalong-server.h"
-#include "hopalong-xdg.h"
-
-static bool
-handle_keybinding(struct hopalong_server *server, xkb_keysym_t sym)
-{
-	if (sym >= XKB_KEY_XF86Switch_VT_1 && sym <= XKB_KEY_XF86Switch_VT_12)
-	{
-		struct wlr_session *session = wlr_backend_get_session(server->backend);
-
-		if (session != NULL)
-		{
-			unsigned vt = sym - XKB_KEY_XF86Switch_VT_1 + 1;
-			wlr_session_change_vt(session, vt);
-		}
-
-		return true;
-	}
-
-	switch (sym)
-	{
-	case XKB_KEY_Escape:
-		wl_display_terminate(server->display);
-		break;
-	case XKB_KEY_Tab:
-		if (wl_list_length(&server->mapped_layers[HOPALONG_LAYER_MIDDLE]) < 2)
-			break;
-
-		struct hopalong_view *current_view = wl_container_of(server->mapped_layers[HOPALONG_LAYER_MIDDLE].next, current_view, mapped_link);
-		struct hopalong_view *next_view = wl_container_of(current_view->mapped_link.next, next_view, mapped_link);
-
-		hopalong_view_focus(next_view, hopalong_view_get_surface(next_view));
-
-		/* Move the previous view to the end of the list */
-		wl_list_remove(&current_view->mapped_link);
-		wl_list_insert(server->mapped_layers[HOPALONG_LAYER_MIDDLE].prev, &current_view->mapped_link);
-	default:
-		break;
-	}
-
-	return true;
-}
+#include "hopalong-keybinding.h"
 
 static void
 keyboard_handle_modifiers(struct wl_listener *listener, void *data)
@@ -85,13 +45,13 @@ keyboard_handle_key(struct wl_listener *listener, void *data)
 	const xkb_keysym_t *syms;
 	int nsyms = xkb_state_key_get_syms(keyboard->device->keyboard->xkb_state, keycode, &syms);
 
-	bool handled = false;
 	uint32_t modifiers = wlr_keyboard_get_modifiers(keyboard->device->keyboard);
+	bool handled = false;
 
-	if ((modifiers & WLR_MODIFIER_ALT) && (enum wl_keyboard_key_state) event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
+	if ((enum wl_keyboard_key_state) event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
 	{
 		for (int i = 0; i < nsyms; i++)
-			handled = handle_keybinding(server, syms[i]);
+			handled = hopalong_keybinding_process(server, modifiers, syms[i]);
 	}
 
 	/* pass through */

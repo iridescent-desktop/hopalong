@@ -15,6 +15,7 @@ hopalong_sources = [
   'hopalong-style.c',
   'hopalong-shell.c',
   'hopalong-layer-shell.c',
+  'hopalong-keybinding.c',
   'hopalong-main.c',
 ]
 

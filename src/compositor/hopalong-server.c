@@ -18,6 +18,7 @@
 #include "hopalong-cursor.h"
 #include "hopalong-seat.h"
 #include "hopalong-xwayland.h"
+#include "hopalong-keybinding.h"
 
 static void
 hopalong_server_new_output(struct wl_listener *listener, void *data)
@@ -90,6 +91,9 @@ hopalong_server_initialize(struct hopalong_server *server, const struct hopalong
 	/* initialize the layers */
 	for (size_t i = 0; i < HOPALONG_LAYER_COUNT; i++)
 		wl_list_init(&server->mapped_layers[i]);
+
+	/* set up keybindings */
+	hopalong_keybinding_setup(server);
 
 	/* set up XDG shell */
 	hopalong_xdg_shell_setup(server);
@@ -166,6 +170,7 @@ hopalong_server_destroy(struct hopalong_server *server)
 	hopalong_layer_shell_teardown(server);
 	hopalong_xwayland_shell_teardown(server);
 	hopalong_xdg_shell_teardown(server);
+	hopalong_keybinding_teardown(server);
 
 	if (server->output_layout)
 		wlr_output_layout_destroy(server->output_layout);

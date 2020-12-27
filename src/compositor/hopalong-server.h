@@ -98,6 +98,8 @@ struct hopalong_server {
 	struct wlr_xdg_output_manager_v1 *xdg_output_manager;
 	struct wlr_layer_shell_v1 *wlr_layer_shell;
 	struct wl_listener new_layer_surface;
+
+	struct wl_list keybindings;
 };
 
 struct hopalong_server_options {
