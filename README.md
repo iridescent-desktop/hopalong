@@ -18,7 +18,7 @@ Hopalong is a simple Wayland compositor with a featureset comparable to XFWM.
 
 ## Screenshots
 
-TODO: First, screenshot support must be implemented.
+![Hopalong 0.1](screenshots/hopalong-0.1.png)
 
 ## Install
 
