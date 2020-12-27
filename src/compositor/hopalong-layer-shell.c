@@ -44,26 +44,46 @@ static enum hopalong_layer layer_mapping[HOPALONG_LAYER_COUNT] = {
 };
 
 static void
+arrange_layer(struct hopalong_view *view)
+{
+	struct wlr_layer_surface_v1 *layer = view->layer_surface;
+	struct wlr_layer_surface_v1_state *state = &layer->current;
+
+	struct wlr_output *output = layer->output;
+	struct wlr_box usable_area = {};
+
+	wlr_output_effective_resolution(output, &usable_area.width, &usable_area.height);
+
+	struct wlr_box bounds = {
+		.width = state->desired_width,
+		.height = state->desired_height
+	};
+
+	switch (view->layer)
+	{
+	case HOPALONG_LAYER_BACKGROUND:
+		bounds = usable_area;
+		break;
+	default:
+		break;
+	}
+
+	wlr_layer_surface_v1_configure(layer, bounds.width, bounds.height);
+	hopalong_view_map(view);
+}
+
+static void
 hopalong_layer_shell_surface_commit(struct wl_listener *listener, void *data)
 {
 	struct hopalong_view *view = wl_container_of(listener, view, surface_commit);
 	bool mapped = view->mapped;
 
-	struct wlr_layer_surface_v1 *layer = view->layer_surface;
-	struct wlr_layer_surface_v1_state *state = &layer->current;
-
-	struct wlr_box box = {
-		.width = state->desired_width,
-		.height = state->desired_height
-	};
-
-	wlr_layer_surface_v1_configure(layer, box.width, box.height);
-
+	/* if the layer moved, prepare to put it on the right list. */
 	if (mapped)
 		hopalong_view_unmap(view);
 
 	view->layer = layer_mapping[view->layer_surface->current.layer];
-	hopalong_view_map(view);
+	arrange_layer(view);
 }
 
 static void
