@@ -38,17 +38,17 @@ handle_keybinding(struct hopalong_server *server, xkb_keysym_t sym)
 		wl_display_terminate(server->display);
 		break;
 	case XKB_KEY_Tab:
-		if (wl_list_length(&server->views) < 2)
+		if (wl_list_length(&server->mapped_layers[HOPALONG_LAYER_MIDDLE]) < 2)
 			break;
 
-		struct hopalong_view *current_view = wl_container_of(server->views.next, current_view, link);
-		struct hopalong_view *next_view = wl_container_of(current_view->link.next, next_view, link);
+		struct hopalong_view *current_view = wl_container_of(server->mapped_layers[HOPALONG_LAYER_MIDDLE].next, current_view, mapped_link);
+		struct hopalong_view *next_view = wl_container_of(current_view->mapped_link.next, next_view, mapped_link);
 
 		hopalong_view_focus(next_view, hopalong_view_get_surface(next_view));
 
 		/* Move the previous view to the end of the list */
-		wl_list_remove(&current_view->link);
-		wl_list_insert(server->views.prev, &current_view->link);
+		wl_list_remove(&current_view->mapped_link);
+		wl_list_insert(server->mapped_layers[HOPALONG_LAYER_MIDDLE].prev, &current_view->mapped_link);
 	default:
 		break;
 	}
