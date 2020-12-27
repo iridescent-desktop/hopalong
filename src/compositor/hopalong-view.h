@@ -89,8 +89,11 @@ struct hopalong_view {
 
 	struct hopalong_server *server;
 	const struct hopalong_view_ops *ops;
+
 	struct wlr_xdg_surface *xdg_surface;
 	struct wlr_xwayland_surface *xwayland_surface;
+	struct wlr_layer_surface_v1 *layer_surface;
+
 	struct wl_listener map;
 	struct wl_listener unmap;
 	struct wl_listener destroy;
@@ -98,6 +101,7 @@ struct hopalong_view {
 	struct wl_listener request_move;
 	struct wl_listener request_resize;
 	struct wl_listener set_title;
+	struct wl_listener surface_commit;
 	bool mapped;
 	int x, y;
 

@@ -97,6 +97,9 @@ hopalong_server_initialize(struct hopalong_server *server, const struct hopalong
 	/* set up XWayland shell */
 	hopalong_xwayland_shell_setup(server);
 
+	/* set up layer shell */
+	hopalong_layer_shell_setup(server);
+
 	/* set up cursor */
 	hopalong_cursor_setup(server);
 
@@ -160,6 +163,7 @@ hopalong_server_destroy(struct hopalong_server *server)
 
 	hopalong_seat_teardown(server);
 	hopalong_cursor_teardown(server);
+	hopalong_layer_shell_teardown(server);
 	hopalong_xwayland_shell_teardown(server);
 	hopalong_xdg_shell_teardown(server);
 

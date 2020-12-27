@@ -41,6 +41,7 @@
 #include "hopalong-view.h"
 #include "hopalong-xwayland.h"
 #include "hopalong-style.h"
+#include "hopalong-layer-shell.h"
 
 enum hopalong_cursor_mode {
 	HOPALONG_CURSOR_PASSTHROUGH,
@@ -95,6 +96,8 @@ struct hopalong_server {
 	const struct hopalong_style *style;
 
 	struct wlr_xdg_output_manager_v1 *xdg_output_manager;
+	struct wlr_layer_shell_v1 *wlr_layer_shell;
+	struct wl_listener new_layer_surface;
 };
 
 struct hopalong_server_options {

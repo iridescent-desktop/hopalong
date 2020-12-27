@@ -140,8 +140,12 @@ render_view_surface(struct hopalong_view *view, struct render_data *data)
 		wlr_xdg_surface_for_each_surface(view->xdg_surface, render_surface, data);
 		return;
 	}
-
-	if (view->xwayland_surface != NULL)
+	else if (view->layer_surface != NULL)
+	{
+		wlr_layer_surface_v1_for_each_surface(view->layer_surface, render_surface, data);
+		return;
+	}
+	else if (view->xwayland_surface != NULL)
 	{
 		struct wlr_surface *surface = hopalong_view_get_surface(view);
 
