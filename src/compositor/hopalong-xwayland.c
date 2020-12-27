@@ -58,7 +58,7 @@ hopalong_xwayland_toplevel_maximize(struct hopalong_view *view)
 static void
 hopalong_xwayland_toplevel_close(struct hopalong_view *view)
 {
-	wlr_log(WLR_INFO, "hopalong_xwayland_toplevel_close: not implemented");
+	wlr_xwayland_surface_close(view->xwayland_surface);
 }
 
 static const char *
