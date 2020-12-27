@@ -33,6 +33,8 @@ hopalong_shell_view_at(struct hopalong_view *view,
 	if (_surface != NULL)
 	{
 		*surface = _surface;
+		*sx = _sx;
+		*sy = _sy;
 		return true;
 	}
 
