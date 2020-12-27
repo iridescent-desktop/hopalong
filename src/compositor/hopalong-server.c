@@ -81,6 +81,9 @@ hopalong_server_initialize(struct hopalong_server *server, const struct hopalong
 	server->new_output.notify = hopalong_server_new_output;
 	wl_signal_add(&server->backend->events.new_output, &server->new_output);
 
+	/* set up output layout manager protocol */
+	server->xdg_output_manager = wlr_xdg_output_manager_v1_create(server->display, server->output_layout);
+
 	/* initialize view lists */
 	wl_list_init(&server->views);
 

@@ -32,6 +32,7 @@
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_shell.h>
+#include <wlr/types/wlr_xdg_output_v1.h>
 #include <wlr/xwayland.h>
 #include <wlr/util/log.h>
 #include <xkbcommon/xkbcommon.h>
@@ -92,6 +93,8 @@ struct hopalong_server {
 	struct wl_listener new_xwayland_surface;
 
 	const struct hopalong_style *style;
+
+	struct wlr_xdg_output_manager_v1 *xdg_output_manager;
 };
 
 struct hopalong_server_options {
