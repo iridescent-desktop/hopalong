@@ -29,8 +29,6 @@ hopalong_keybinding_process(struct hopalong_server *server, uint32_t modifiers, 
 {
 	struct hopalong_keybinding *binding;
 
-	wlr_log(WLR_INFO, "match keybinding, modifiers = %x sym = %x", modifiers, sym);
-
 	wl_list_for_each_reverse(binding, &server->keybindings, link)
 	{
 		if (modifiers == binding->modifiers && sym == binding->sym)
@@ -72,9 +70,6 @@ switch_activity(struct hopalong_server *server, uint32_t modifiers, xkb_keysym_t
 
 	struct hopalong_view *current_view = wl_container_of(server->mapped_layers[HOPALONG_LAYER_MIDDLE].next, current_view, mapped_link);
 	struct hopalong_view *last_view = wl_container_of(server->mapped_layers[HOPALONG_LAYER_MIDDLE].prev, last_view, mapped_link);
-
-	wlr_log(WLR_DEBUG, "current_view %p layer %d, last_view %p layer %d", current_view, current_view->layer, last_view, last_view->layer);
-
 	struct hopalong_view *next_view = backwards ? last_view : wl_container_of(current_view->mapped_link.next, next_view, mapped_link);
 
 	return_if_fail(next_view != NULL);
@@ -87,6 +82,15 @@ switch_activity(struct hopalong_server *server, uint32_t modifiers, xkb_keysym_t
 	/* Move the previous view to the end of the list */
 	wl_list_remove(&current_view->mapped_link);
 	wl_list_insert(server->mapped_layers[HOPALONG_LAYER_MIDDLE].prev, &current_view->mapped_link);
+}
+
+static void
+toggle_title_bar(struct hopalong_server *server, uint32_t modifiers, xkb_keysym_t sym)
+{
+	struct hopalong_view *current_view = wl_container_of(server->mapped_layers[HOPALONG_LAYER_MIDDLE].next, current_view, mapped_link);
+
+	if (current_view != NULL)
+		current_view->hide_title_bar ^= true;
 }
 
 static struct hopalong_keybinding *
@@ -129,6 +133,8 @@ hopalong_keybinding_setup(struct hopalong_server *server)
 
 	hopalong_keybinding_add(server, WLR_MODIFIER_SHIFT | WLR_MODIFIER_ALT, XKB_KEY_ISO_Left_Tab, switch_activity);
 	hopalong_keybinding_add(server, WLR_MODIFIER_ALT, XKB_KEY_ISO_Left_Tab, switch_activity);
+
+	hopalong_keybinding_add(server, WLR_MODIFIER_SHIFT | WLR_MODIFIER_ALT, XKB_KEY_D, toggle_title_bar);
 }
 
 void
