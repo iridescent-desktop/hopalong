@@ -92,6 +92,9 @@ hopalong_server_initialize(struct hopalong_server *server, const struct hopalong
 	for (size_t i = 0; i < HOPALONG_LAYER_COUNT; i++)
 		wl_list_init(&server->mapped_layers[i]);
 
+	/* set up cursor */
+	hopalong_cursor_setup(server);
+
 	/* set up keybindings */
 	hopalong_keybinding_setup(server);
 
@@ -103,9 +106,6 @@ hopalong_server_initialize(struct hopalong_server *server, const struct hopalong
 
 	/* set up layer shell */
 	hopalong_layer_shell_setup(server);
-
-	/* set up cursor */
-	hopalong_cursor_setup(server);
 
 	/* set up the seat */
 	hopalong_seat_setup(server);

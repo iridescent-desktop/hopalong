@@ -451,6 +451,8 @@ hopalong_output_new_from_wlr_output(struct hopalong_server *server, struct wlr_o
 	output->frame.notify = hopalong_output_frame_notify;
 	wl_signal_add(&wlr_output->events.frame, &output->frame);
 
+	wlr_xcursor_manager_load(server->cursor_mgr, wlr_output->scale);
+
 	output_configure(output);
 
 	output->generated_textures = hopalong_generate_builtin_textures_for_output(output, server->style);

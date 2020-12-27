@@ -249,8 +249,9 @@ hopalong_cursor_setup(struct hopalong_server *server)
 	server->cursor = wlr_cursor_create();
 	wlr_cursor_attach_output_layout(server->cursor, server->output_layout);
 
-	server->cursor_mgr = wlr_xcursor_manager_create("breeze", 48);
+	server->cursor_mgr = wlr_xcursor_manager_create("breeze_cursors", 48);
 	wlr_xcursor_manager_load(server->cursor_mgr, 1);
+	wlr_xcursor_manager_load(server->cursor_mgr, 2);
 
 	server->cursor_motion.notify = cursor_motion;
 	wl_signal_add(&server->cursor->events.motion, &server->cursor_motion);
