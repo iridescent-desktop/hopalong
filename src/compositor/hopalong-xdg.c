@@ -218,6 +218,19 @@ static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 };
 
 static void
+hopalong_xdg_surface_commit(struct wl_listener *listener, void *data)
+{
+	struct hopalong_view *view = wl_container_of(listener, view, surface_commit);
+
+	/* GTK3 insists on using CSD, we can detect this because the surface given to the
+	 * compositor is actually a sub-surface and has an offset in its geometry.
+	 */
+	view->using_csd = false;
+	if (view->xdg_surface->geometry.x || view->xdg_surface->geometry.y)
+		view->using_csd = true;
+}
+
+static void
 hopalong_xdg_new_surface(struct wl_listener *listener, void *data)
 {
 	struct hopalong_server *server = wl_container_of(listener, server, new_xdg_surface);
@@ -260,6 +273,9 @@ hopalong_xdg_new_surface(struct wl_listener *listener, void *data)
 	view->title_dirty = true;
 	view->set_title.notify = hopalong_xdg_toplevel_set_title;
 	wl_signal_add(&xdg_toplevel->events.set_title, &view->set_title);
+
+	view->surface_commit.notify = hopalong_xdg_surface_commit;
+	wl_signal_add(&xdg_surface->surface->events.commit, &view->surface_commit);
 
 	/* add to the list of views */
 	wl_list_insert(&server->views, &view->link);
