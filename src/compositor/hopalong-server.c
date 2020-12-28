@@ -20,6 +20,11 @@
 #include "hopalong-xwayland.h"
 #include "hopalong-keybinding.h"
 
+#include <wlr/types/wlr_data_control_v1.h>
+#include <wlr/types/wlr_export_dmabuf_v1.h>
+#include <wlr/types/wlr_gamma_control_v1.h>
+#include <wlr/types/wlr_primary_selection_v1.h>
+
 static void
 hopalong_server_new_output(struct wl_listener *listener, void *data)
 {
@@ -110,8 +115,12 @@ hopalong_server_initialize(struct hopalong_server *server, const struct hopalong
 	/* set up the seat */
 	hopalong_seat_setup(server);
 
-	/* set up screenshotting */
+	/* add useful extensions */
 	wlr_screencopy_manager_v1_create(server->display);
+	wlr_export_dmabuf_manager_v1_create(server->display);
+	wlr_data_control_manager_v1_create(server->display);
+	wlr_gamma_control_manager_v1_create(server->display);
+	wlr_primary_selection_v1_device_manager_create(server->display);
 
 	/* set up style */
 	if (options->style_name != NULL)
