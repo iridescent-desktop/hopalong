@@ -190,12 +190,6 @@ hopalong_xwayland_new_surface(struct wl_listener *listener, void *data)
 {
 	struct wlr_xwayland_surface *xwayland_surface = data;
 
-	if (xwayland_surface->override_redirect)
-	{
-		wlr_log(WLR_INFO, "hopalong_xwayland_new_surface: surface %p is unmanaged", xwayland_surface);
-		return;
-	}
-
 	struct hopalong_server *server = wl_container_of(listener, server, new_xwayland_surface);
 	struct hopalong_view *view = calloc(1, sizeof(*view));
 
@@ -203,6 +197,9 @@ hopalong_xwayland_new_surface(struct wl_listener *listener, void *data)
 	view->server = server;
 	view->ops = &hopalong_xwayland_view_ops;
 	view->layer = HOPALONG_LAYER_MIDDLE;
+
+	if (xwayland_surface->override_redirect)
+		view->using_csd = true;
 
 	view->map.notify = hopalong_xwayland_surface_map;
 	wl_signal_add(&xwayland_surface->events.map, &view->map);
