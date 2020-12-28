@@ -229,5 +229,6 @@ hopalong_xwayland_shell_setup(struct hopalong_server *server)
 void
 hopalong_xwayland_shell_teardown(struct hopalong_server *server)
 {
+	wlr_xwayland_destroy(server->wlr_xwayland);
 }
 
