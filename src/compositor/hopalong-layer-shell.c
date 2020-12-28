@@ -33,6 +33,12 @@ static void
 hopalong_layer_shell_destroy(struct wl_listener *listener, void *data)
 {
 	struct hopalong_view *view = wl_container_of(listener, view, destroy);
+
+	wl_list_remove(&view->map.link);
+	wl_list_remove(&view->unmap.link);
+	wl_list_remove(&view->destroy.link);
+	wl_list_remove(&view->surface_commit.link);
+
 	hopalong_view_destroy(view);
 }
 

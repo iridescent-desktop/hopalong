@@ -33,6 +33,13 @@ static void
 hopalong_xwayland_destroy(struct wl_listener *listener, void *data)
 {
 	struct hopalong_view *view = wl_container_of(listener, view, destroy);
+
+	wl_list_remove(&view->map.link);
+	wl_list_remove(&view->unmap.link);
+	wl_list_remove(&view->destroy.link);
+	wl_list_remove(&view->request_configure.link);
+	wl_list_remove(&view->set_title.link);
+
 	hopalong_view_destroy(view);
 }
 
