@@ -44,32 +44,152 @@ static enum hopalong_layer layer_mapping[HOPALONG_LAYER_COUNT] = {
 };
 
 static void
-arrange_layer(struct hopalong_view *view)
+apply_exclusive(struct wlr_box *usable_area, uint32_t anchor, int32_t exclusive,
+		int32_t margin_top, int32_t margin_right, int32_t margin_bottom,
+		int32_t margin_left)
 {
-	struct wlr_layer_surface_v1 *layer = view->layer_surface;
-	struct wlr_layer_surface_v1_state *state = &layer->current;
+	if (exclusive <= 0)
+		return;
 
-	struct wlr_output *output = layer->output;
-	struct wlr_box usable_area = {};
-
-	wlr_output_effective_resolution(output, &usable_area.width, &usable_area.height);
-
-	struct wlr_box bounds = {
-		.width = state->desired_width,
-		.height = state->desired_height
+	struct {
+		uint32_t anchors;
+		int *positive_axis;
+		int *negative_axis;
+		int margin;
+	} edges[] = {
+		{
+			.anchors =
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT |
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP,
+			.positive_axis = &usable_area->y,
+			.negative_axis = &usable_area->height,
+			.margin = margin_top,
+		},
+		{
+			.anchors =
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT |
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM,
+			.positive_axis = NULL,
+			.negative_axis = &usable_area->height,
+			.margin = margin_bottom,
+		},
+		{
+			.anchors =
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP |
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM,
+			.positive_axis = &usable_area->x,
+			.negative_axis = &usable_area->width,
+			.margin = margin_left,
+		},
+		{
+			.anchors =
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT |
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP |
+				ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM,
+			.positive_axis = NULL,
+			.negative_axis = &usable_area->width,
+			.margin = margin_right,
+		},
 	};
 
-	switch (view->layer)
+	for (size_t i = 0; i < sizeof(edges) / sizeof(edges[0]); ++i)
 	{
-	case HOPALONG_LAYER_BACKGROUND:
-		bounds = usable_area;
-		break;
-	default:
-		break;
-	}
+		if ((anchor & edges[i].anchors) == edges[i].anchors)
+		{
+			if (edges[i].positive_axis)
+				*edges[i].positive_axis += exclusive + edges[i].margin;
 
-	wlr_layer_surface_v1_configure(layer, bounds.width, bounds.height);
-	hopalong_view_map(view);
+			if (edges[i].negative_axis)
+				*edges[i].negative_axis -= exclusive + edges[i].margin;
+		}
+	}
+}
+
+static void
+arrange_layer(struct wl_list *list, struct wlr_box *usable_area, bool exclusive)
+{
+	struct hopalong_view *view;
+	wl_list_for_each_reverse(view, list, mapped_link)
+	{
+		struct wlr_layer_surface_v1 *layer = view->layer_surface;
+		struct wlr_layer_surface_v1_state *state = &layer->current;
+
+		struct wlr_box bounds = *usable_area;
+		struct wlr_box box = {
+			.width = state->desired_width,
+			.height = state->desired_height
+		};
+
+		/* Horizontal axis */
+		const uint32_t both_horiz = ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT
+			| ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT;
+
+		if ((state->anchor & both_horiz) && box.width == 0)
+		{
+			box.x = bounds.x;
+			box.width = bounds.width;
+		}
+		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT))
+			box.x = bounds.x;
+		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT))
+			box.x = bounds.x + (bounds.width - box.width);
+		else
+			box.x = bounds.x + ((bounds.width / 2) - (box.width / 2));
+
+		/* Vertical axis */
+		const uint32_t both_vert = ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP
+			| ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM;
+
+		if ((state->anchor & both_vert) && box.height == 0)
+		{
+			box.y = bounds.y;
+			box.height = bounds.height;
+		}
+		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP))
+			box.y = bounds.y;
+		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM))
+			box.y = bounds.y + (bounds.height - box.height);
+		else
+			box.y = bounds.y + ((bounds.height / 2) - (box.height / 2));
+
+		/* Margin */
+		if ((state->anchor & both_horiz) == both_horiz)
+		{
+			box.x += state->margin.left;
+			box.width -= state->margin.left + state->margin.right;
+		}
+		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT))
+			box.x += state->margin.left;
+		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT))
+			box.x -= state->margin.right;
+
+		if ((state->anchor & both_vert) == both_vert)
+		{
+			box.y += state->margin.top;
+			box.height -= state->margin.top + state->margin.bottom;
+		}
+		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP))
+			box.y += state->margin.top;
+		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM))
+			box.y -= state->margin.bottom;
+
+		if (box.width < 0 || box.height < 0)
+		{
+			wlr_log(WLR_INFO, "view %p, protocol error", view);
+			wlr_layer_surface_v1_close(layer);
+			continue;
+		}
+
+		apply_exclusive(usable_area, state->anchor,
+			state->exclusive_zone, state->margin.top,
+			state->margin.right, state->margin.bottom,
+			state->margin.left);
+
+		wlr_layer_surface_v1_configure(layer, box.width, box.height);
+	}
 }
 
 static void
@@ -83,7 +203,14 @@ hopalong_layer_shell_surface_commit(struct wl_listener *listener, void *data)
 		hopalong_view_unmap(view);
 
 	view->layer = layer_mapping[view->layer_surface->current.layer];
-	arrange_layer(view);
+	hopalong_view_map(view);
+
+	struct wlr_output *output = view->layer_surface->output;
+	struct wlr_box usable_area = {};
+	wlr_output_effective_resolution(output, &usable_area.width, &usable_area.height);
+
+	struct hopalong_server *server = view->server;
+	arrange_layer(&server->mapped_layers[view->layer], &usable_area, false);
 }
 
 static void
