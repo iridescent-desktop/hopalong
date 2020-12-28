@@ -433,3 +433,21 @@ hopalong_view_surface_at(struct hopalong_view *view, double x, double y, double 
 
 	return view->ops->surface_at(view, x, y, sx, sy);
 }
+
+bool
+hopalong_view_can_move(struct hopalong_view *view)
+{
+	return_val_if_fail(view != NULL, false);
+	return_val_if_fail(view->ops != NULL, false);
+
+	return view->ops->can_move(view);
+}
+
+bool
+hopalong_view_can_resize(struct hopalong_view *view)
+{
+	return_val_if_fail(view != NULL, false);
+	return_val_if_fail(view->ops != NULL, false);
+
+	return view->ops->can_resize(view);
+}

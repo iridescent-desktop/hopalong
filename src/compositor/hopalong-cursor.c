@@ -178,7 +178,7 @@ cursor_button(struct wl_listener *listener, void *data)
 
 		hopalong_view_focus(view, surface);
 
-		if (frame_area == HOPALONG_VIEW_FRAME_AREA_TITLEBAR)
+		if (frame_area == HOPALONG_VIEW_FRAME_AREA_TITLEBAR && hopalong_view_can_move(view))
 		{
 			server->cursor_mode = HOPALONG_CURSOR_MOVE;
 			server->grabbed_view = view;
@@ -207,7 +207,7 @@ cursor_button(struct wl_listener *listener, void *data)
 			return;
 		}
 
-		if (frame_area_edges != WLR_EDGE_NONE)
+		if (frame_area_edges != WLR_EDGE_NONE && hopalong_view_can_resize(view))
 		{
 			server->cursor_mode = HOPALONG_CURSOR_RESIZE;
 

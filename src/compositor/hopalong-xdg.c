@@ -191,6 +191,18 @@ hopalong_xdg_toplevel_surface_at(struct hopalong_view *view, double x, double y,
 	return surface;
 }
 
+static bool
+hopalong_xdg_toplevel_can_move(struct hopalong_view *view)
+{
+	return true;
+}
+
+static bool
+hopalong_xdg_toplevel_can_resize(struct hopalong_view *view)
+{
+	return true;
+}
+
 static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 	.minimize = hopalong_xdg_toplevel_minimize,
 	.maximize = hopalong_xdg_toplevel_maximize,
@@ -201,6 +213,8 @@ static const struct hopalong_view_ops hopalong_xdg_view_ops = {
 	.get_geometry = hopalong_xdg_toplevel_get_geometry,
 	.set_size = hopalong_xdg_toplevel_set_size,
 	.surface_at = hopalong_xdg_toplevel_surface_at,
+	.can_move = hopalong_xdg_toplevel_can_move,
+	.can_resize = hopalong_xdg_toplevel_can_resize,
 };
 
 static void

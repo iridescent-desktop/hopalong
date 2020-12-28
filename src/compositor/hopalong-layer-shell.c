@@ -132,6 +132,12 @@ hopalong_layer_shell_surface_at(struct hopalong_view *view, double x, double y, 
 	return surface;
 }
 
+static bool
+hopalong_layer_shell_can_move_or_resize(struct hopalong_view *view)
+{
+	return false;
+}
+
 static const struct hopalong_view_ops hopalong_layer_shell_view_ops = {
 	.minimize = hopalong_layer_shell_nop,
 	.maximize = hopalong_layer_shell_nop,
@@ -142,6 +148,8 @@ static const struct hopalong_view_ops hopalong_layer_shell_view_ops = {
 	.get_geometry = hopalong_layer_shell_get_geometry,
 	.set_size = (void *) hopalong_layer_shell_nop,
 	.surface_at = hopalong_layer_shell_surface_at,
+	.can_move = hopalong_layer_shell_can_move_or_resize,
+	.can_resize = hopalong_layer_shell_can_move_or_resize,
 };
 
 static void
@@ -154,6 +162,7 @@ hopalong_layer_shell_new_surface(struct wl_listener *listener, void *data)
 
 	view->server = server;
 	view->ops = &hopalong_layer_shell_view_ops;
+	view->using_csd = false;
 
 	view->layer_surface = layer_surface;
 	layer_surface->data = view;
