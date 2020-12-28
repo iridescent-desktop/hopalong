@@ -295,7 +295,7 @@ hopalong_layer_shell_new_surface(struct wl_listener *listener, void *data)
 
 	view->server = server;
 	view->ops = &hopalong_layer_shell_view_ops;
-	view->using_csd = false;
+	view->using_csd = true;
 
 	view->layer_surface = layer_surface;
 	layer_surface->data = view;
