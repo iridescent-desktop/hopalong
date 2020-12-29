@@ -12,6 +12,9 @@
  */
 
 #include <stdlib.h>
+
+#include <wlr/util/log.h>
+
 #include "hopalong-server.h"
 #include "hopalong-layer-shell.h"
 
@@ -115,15 +118,28 @@ apply_exclusive(struct wlr_box *usable_area, uint32_t anchor, int32_t exclusive,
 }
 
 static void
-arrange_layer(struct wl_list *list, struct wlr_box *usable_area, bool exclusive)
+arrange_layer(struct wlr_output *output, struct wl_list *list, struct wlr_box *usable_area, bool exclusive)
 {
 	struct hopalong_view *view;
+
+	struct wlr_box full_area = { 0 };
+	wlr_output_effective_resolution(output, &full_area.width, &full_area.height);
+
 	wl_list_for_each_reverse(view, list, mapped_link)
 	{
 		struct wlr_layer_surface_v1 *layer = view->layer_surface;
 		struct wlr_layer_surface_v1_state *state = &layer->current;
 
-		struct wlr_box bounds = *usable_area;
+		if (state->exclusive_zone > 0 && !exclusive)
+			continue;
+
+		struct wlr_box bounds;
+
+		if (state->exclusive_zone == -1)
+			bounds = full_area;
+		else
+			bounds = *usable_area;
+
 		struct wlr_box box = {
 			.width = state->desired_width,
 			.height = state->desired_height
@@ -164,8 +180,12 @@ arrange_layer(struct wl_list *list, struct wlr_box *usable_area, bool exclusive)
 		/* Margin */
 		if ((state->anchor & both_horiz) == both_horiz)
 		{
+			int32_t total_margin = state->margin.left + state->margin.right;
+
 			box.x += state->margin.left;
-			box.width -= state->margin.left + state->margin.right;
+
+			if (total_margin < box.width)
+				box.width -= total_margin;
 		}
 		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT))
 			box.x += state->margin.left;
@@ -174,8 +194,12 @@ arrange_layer(struct wl_list *list, struct wlr_box *usable_area, bool exclusive)
 
 		if ((state->anchor & both_vert) == both_vert)
 		{
+			int32_t total_margin = state->margin.top + state->margin.bottom;
+
 			box.y += state->margin.top;
-			box.height -= state->margin.top + state->margin.bottom;
+
+			if (total_margin < box.height)
+				box.height -= total_margin;
 		}
 		else if ((state->anchor & ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP))
 			box.y += state->margin.top;
@@ -184,7 +208,6 @@ arrange_layer(struct wl_list *list, struct wlr_box *usable_area, bool exclusive)
 
 		if (box.width < 0 || box.height < 0)
 		{
-			wlr_log(WLR_INFO, "view %p, protocol error", view);
 			wlr_layer_surface_v1_close(layer);
 			continue;
 		}
@@ -193,6 +216,9 @@ arrange_layer(struct wl_list *list, struct wlr_box *usable_area, bool exclusive)
 			state->exclusive_zone, state->margin.top,
 			state->margin.right, state->margin.bottom,
 			state->margin.left);
+
+		view->x = box.x;
+		view->y = box.y;
 
 		wlr_layer_surface_v1_configure(layer, box.width, box.height);
 	}
@@ -216,7 +242,16 @@ hopalong_layer_shell_surface_commit(struct wl_listener *listener, void *data)
 	wlr_output_effective_resolution(output, &usable_area.width, &usable_area.height);
 
 	struct hopalong_server *server = view->server;
-	arrange_layer(&server->mapped_layers[view->layer], &usable_area, false);
+
+	arrange_layer(output, &server->mapped_layers[HOPALONG_LAYER_OVERLAY], &usable_area, true);
+	arrange_layer(output, &server->mapped_layers[HOPALONG_LAYER_TOP], &usable_area, true);
+	arrange_layer(output, &server->mapped_layers[HOPALONG_LAYER_BOTTOM], &usable_area, true);
+	arrange_layer(output, &server->mapped_layers[HOPALONG_LAYER_BACKGROUND], &usable_area, true);
+
+	arrange_layer(output, &server->mapped_layers[HOPALONG_LAYER_OVERLAY], &usable_area, false);
+	arrange_layer(output, &server->mapped_layers[HOPALONG_LAYER_TOP], &usable_area, false);
+	arrange_layer(output, &server->mapped_layers[HOPALONG_LAYER_BOTTOM], &usable_area, false);
+	arrange_layer(output, &server->mapped_layers[HOPALONG_LAYER_BACKGROUND], &usable_area, false);
 }
 
 static void
