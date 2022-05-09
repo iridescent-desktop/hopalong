@@ -42,7 +42,7 @@ generate_minimize_texture(struct hopalong_output *output, const float color[4])
 	cairo_surface_flush(surface);
 
 	unsigned char *data = cairo_image_surface_get_data(surface);
-	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->wlr_output->backend);
+	struct wlr_renderer *renderer = output->wlr_output->renderer;
 	struct wlr_texture *texture = wlr_texture_from_pixels(renderer,
 		WL_SHM_FORMAT_ARGB8888,
 		cairo_image_surface_get_stride(surface),
@@ -79,7 +79,7 @@ generate_maximize_texture(struct hopalong_output *output, const float color[4])
 	cairo_surface_flush(surface);
 
 	unsigned char *data = cairo_image_surface_get_data(surface);
-	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->wlr_output->backend);
+	struct wlr_renderer *renderer = output->wlr_output->renderer;
 	struct wlr_texture *texture = wlr_texture_from_pixels(renderer,
 		WL_SHM_FORMAT_ARGB8888,
 		cairo_image_surface_get_stride(surface),
@@ -116,7 +116,7 @@ generate_close_texture(struct hopalong_output *output, const float color[4])
 	cairo_surface_flush(surface);
 
 	unsigned char *data = cairo_image_surface_get_data(surface);
-	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->wlr_output->backend);
+	struct wlr_renderer *renderer = output->wlr_output->renderer;
 	struct wlr_texture *texture = wlr_texture_from_pixels(renderer,
 		WL_SHM_FORMAT_ARGB8888,
 		cairo_image_surface_get_stride(surface),
@@ -148,7 +148,7 @@ hopalong_generate_builtin_textures_for_output(struct hopalong_output *output, co
 static bool
 hopalong_view_generate_title_texture(struct hopalong_output *output, struct hopalong_view *view)
 {
-	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->wlr_output->backend);
+	struct wlr_renderer *renderer = output->wlr_output->renderer;
 
 	if (view->title)
 	{

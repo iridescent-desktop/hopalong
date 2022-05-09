@@ -34,6 +34,10 @@ hopalong_server_new_output(struct wl_listener *listener, void *data)
 	struct wlr_output *wlr_output = data;
 	return_if_fail(wlr_output != NULL);
 
+ 	if (!wlr_output_init_render(wlr_output, server->allocator, server->renderer)) {
+		return;
+ 	}
+
 	/* TODO: Right now if we are using a rendering backend that has modes, we
 	 * choose the preferred mode.  It would be better if this were configurable
 	 * to allow the user to choose the resolution of her preference.
@@ -66,12 +70,16 @@ hopalong_server_initialize(struct hopalong_server *server, const struct hopalong
 	return_val_if_fail(server->display != NULL, false);
 
 	/* set up the backend */
-	server->backend = wlr_backend_autocreate(server->display, NULL);
+	server->backend = wlr_backend_autocreate(server->display);
 	return_val_if_fail(server->backend != NULL, false);
 
 	/* set up a GLES2 renderer */
-	server->renderer = wlr_backend_get_renderer(server->backend);
-	return_val_if_fail(server->renderer != NULL, false);
+ 	server->renderer = wlr_renderer_autocreate(server->backend);
+ 	return_val_if_fail(server->renderer != NULL, false);
+
+ 	/* set up an allocator */
+ 	server->allocator = wlr_allocator_autocreate(server->backend, server->renderer);
+ 	return_val_if_fail(server->allocator != NULL, false);
 
 	/* start hooking up wlroots stuff */
 	wlr_renderer_init_wl_display(server->renderer, server->display);

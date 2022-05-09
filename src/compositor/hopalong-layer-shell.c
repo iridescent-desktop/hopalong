@@ -208,7 +208,7 @@ arrange_layer(struct wlr_output *output, struct wl_list *list, struct wlr_box *u
 
 		if (box.width < 0 || box.height < 0)
 		{
-			wlr_layer_surface_v1_close(layer);
+			wlr_layer_surface_v1_destroy(layer);
 			continue;
 		}
 
@@ -344,7 +344,7 @@ hopalong_layer_shell_new_surface(struct wl_listener *listener, void *data)
 		layer_surface->output = output;
 	}
 
-	view->layer = layer_mapping[layer_surface->client_pending.layer];
+	view->layer = layer_mapping[layer_surface->pending.layer];
 
 	view->map.notify = hopalong_layer_shell_surface_map;
 	wl_signal_add(&layer_surface->events.map, &view->map);
