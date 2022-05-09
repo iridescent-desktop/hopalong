@@ -235,7 +235,7 @@ hopalong_xdg_surface_commit(struct wl_listener *listener, void *data)
 	 * compositor is actually a sub-surface and has an offset in its geometry.
 	 */
 	view->using_csd = false;
-	if (view->xdg_surface->geometry.x || view->xdg_surface->geometry.y)
+	if (view->xdg_surface->current.geometry.x || view->xdg_surface->current.geometry.y)
 		view->using_csd = true;
 }
 

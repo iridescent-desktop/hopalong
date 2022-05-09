@@ -93,7 +93,7 @@ render_texture(struct wlr_output *output, struct wlr_box *box, struct wlr_textur
 {
 	return_if_fail(texture != NULL);
 
-	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->backend);
+	struct wlr_renderer *renderer = output->renderer;
 	struct wlr_box scalebox = {
 		.x = box->x,
 		.y = box->y,
@@ -118,7 +118,7 @@ render_texture(struct wlr_output *output, struct wlr_box *box, struct wlr_textur
 static void
 render_rect(struct wlr_output *output, struct wlr_box *box, const float color[4])
 {
-	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->backend);
+	struct wlr_renderer *renderer = output->renderer;
 	struct wlr_box scalebox = {
 		.x = box->x,
 		.y = box->y,
