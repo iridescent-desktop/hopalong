@@ -13,6 +13,7 @@
 
 #include <cairo/cairo.h>
 #include <pango/pangocairo.h>
+#include <drm_fourcc.h>
 
 #include "hopalong-server.h"
 #include "hopalong-view.h"
@@ -44,7 +45,7 @@ generate_minimize_texture(struct hopalong_output *output, const float color[4])
 	unsigned char *data = cairo_image_surface_get_data(surface);
 	struct wlr_renderer *renderer = output->wlr_output->renderer;
 	struct wlr_texture *texture = wlr_texture_from_pixels(renderer,
-		WL_SHM_FORMAT_ARGB8888,
+		DRM_FORMAT_ARGB8888,
 		cairo_image_surface_get_stride(surface),
 		32, 32, data);
 
@@ -81,7 +82,7 @@ generate_maximize_texture(struct hopalong_output *output, const float color[4])
 	unsigned char *data = cairo_image_surface_get_data(surface);
 	struct wlr_renderer *renderer = output->wlr_output->renderer;
 	struct wlr_texture *texture = wlr_texture_from_pixels(renderer,
-		WL_SHM_FORMAT_ARGB8888,
+		DRM_FORMAT_ARGB8888,
 		cairo_image_surface_get_stride(surface),
 		32, 32, data);
 
@@ -118,7 +119,7 @@ generate_close_texture(struct hopalong_output *output, const float color[4])
 	unsigned char *data = cairo_image_surface_get_data(surface);
 	struct wlr_renderer *renderer = output->wlr_output->renderer;
 	struct wlr_texture *texture = wlr_texture_from_pixels(renderer,
-		WL_SHM_FORMAT_ARGB8888,
+		DRM_FORMAT_ARGB8888,
 		cairo_image_surface_get_stride(surface),
 		32, 32, data);
 
@@ -207,7 +208,7 @@ hopalong_view_generate_title_texture(struct hopalong_output *output, struct hopa
 	unsigned char *data = cairo_image_surface_get_data(surface);
 
 	view->title = wlr_texture_from_pixels(renderer,
-		WL_SHM_FORMAT_ARGB8888,
+		DRM_FORMAT_ARGB8888,
 		cairo_image_surface_get_stride(surface),
 		w, h, data);
 
@@ -220,7 +221,7 @@ hopalong_view_generate_title_texture(struct hopalong_output *output, struct hopa
 	data = cairo_image_surface_get_data(surface);
 
 	view->title_inactive = wlr_texture_from_pixels(renderer,
-		WL_SHM_FORMAT_ARGB8888,
+		DRM_FORMAT_ARGB8888,
 		cairo_image_surface_get_stride(surface),
 		w, h, data);
 
